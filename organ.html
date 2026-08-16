@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Organ — Gonzo's Music Room</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&family=Share+Tech+Mono&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+<style>
+
+/* ── CSS variables the original organ expects ── */
+:root {
+  --color-background-primary:   #1e1408;
+  --color-background-secondary: #281a0a;
+  --color-text-primary:         #e8d5a0;
+  --color-text-secondary:       #8a7050;
+  --color-border-secondary:     #3e2212;
+  --color-border-tertiary:      #2a1808;
+  --border-radius-lg:           8px;
+  --border-radius-md:           5px;
+  --font-sans:                  'Cinzel', serif;
+}
+
+/* ── Page shell ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  min-height: 100vh;
+  background: #0b0807;
+  color: var(--color-text-primary);
+  font-family: 'Cinzel', serif;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.04; pointer-events: none; z-index: 900;
+}
+
+/* ── Nav bar ── */
+.room-nav {
+  padding: 0.85rem 2rem;
+  border-bottom: 1px solid #1a1005;
+  display: flex; align-items: center; gap: 1rem;
+  position: relative; z-index: 10;
+}
+.back-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.65rem; letter-spacing: 0.14em;
+  color: #7a6040; text-decoration: none;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #2a1808;
+  transition: color 0.2s, border-color 0.2s;
+}
+.back-btn:hover { color: #d97706; border-color: #d97706; }
+.nav-crumb {
+  font-family: 'Caveat', cursive;
+  font-size: 1rem; color: #4a3828;
+}
+
+/* ── Organ content wrapper ── */
+.organ-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem 4rem;
+  position: relative; z-index: 1;
+}
+
+/* ── White keys must stay light even with dark --color-background-primary ── */
+.wk { background: linear-gradient(to bottom, #f2eedd, #e6dfc8) !important; }
+.wk:hover { background: linear-gradient(to bottom, #e8e0c8, #dbd4b8) !important; }
+.wk.lit { background: #B5D4F4 !important; }
+
+</style>
+</head>
+<body>
+
+<nav class="room-nav">
+  <a href="index.html" class="back-btn">← MUSIC ROOM</a>
+  <span class="nav-crumb">/ The Organ</span>
+</nav>
+
+<div class="organ-page">
+
+<!-- ═══════════════════════════════════════════════════════
+     ORIGINAL ORGAN — audio engine untouched
+════════════════════════════════════════════════════════ -->
+
+<style>
+.organ-wrap{padding:1rem 0 1.5rem;font-family:var(--font-sans);}
+.organ-title{text-align:center;font-family:'Cinzel',serif;font-size:15px;font-weight:600;color:var(--color-text-primary);letter-spacing:0.2em;margin-bottom:0.25rem;}
+.organ-sub{text-align:center;font-size:11px;color:var(--color-text-secondary);letter-spacing:0.15em;margin-bottom:1rem;}
+.panel{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;margin-bottom:0.75rem;}
+.panel-label{font-size:10px;letter-spacing:0.12em;color:var(--color-text-secondary);margin-bottom:0.75rem;text-align:center;}
+.drawbars-row{display:flex;gap:0.75rem;justify-content:center;align-items:flex-start;}
+.db-col{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.db-val{font-size:13px;font-weight:500;color:var(--color-text-primary);min-width:16px;text-align:center;height:18px;}
+.db-track{position:relative;width:28px;height:108px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:4px;cursor:pointer;overflow:hidden;}
+.db-fill{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 4px 4px;transition:height 60ms;}
+.db-thumb{position:absolute;left:0;right:0;height:10px;border-radius:3px;cursor:grab;transform:translateY(50%);}
+.db-label{font-size:10px;color:var(--color-text-secondary);text-align:center;font-family:'Cinzel',serif;}
+.controls-row{display:flex;gap:0.75rem;justify-content:center;align-items:center;flex-wrap:wrap;}
+.ctrl-btn{padding:5px 14px;font-size:12px;border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;background:var(--color-background-primary);color:var(--color-text-primary);transition:all 100ms;letter-spacing:0.05em;font-family:'Cinzel',serif;}
+.ctrl-btn.on{background:var(--color-background-secondary);border-color:#BA7517;color:#BA7517;}
+.vol-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);}
+.vol-wrap input{width:80px;}
+.keyboard-outer{overflow-x:auto;padding-bottom:0.5rem;}
+.keyboard{position:relative;display:flex;height:152px;user-select:none;}
+.wk{border:0.5px solid var(--color-border-secondary);border-radius:0 0 5px 5px;cursor:pointer;width:44px;height:148px;position:relative;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;flex-shrink:0;transition:background 50ms;}
+.bk{background:#2C2C2A;border-radius:0 0 4px 4px;cursor:pointer;width:29px;height:93px;position:absolute;top:0;z-index:2;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;transition:background 50ms;}
+.bk.lit{background:#5F5E5A;}
+.key-label{font-size:10px;color:var(--color-text-secondary);pointer-events:none;}
+.bk .key-label{color:#888780;}
+.kbd-hint{text-align:center;font-size:11px;color:var(--color-text-secondary);margin-top:0.6rem;}
+.note-display{display:flex;align-items:center;justify-content:center;gap:6px;min-height:24px;margin-bottom:0.5rem;}
+.note-pill{background:var(--color-background-secondary);border:0.5px solid #BA7517;color:#BA7517;border-radius:20px;padding:2px 10px;font-size:11px;font-family:'Cinzel',serif;letter-spacing:0.08em;}
+.pipes-deco{display:flex;justify-content:center;gap:4px;align-items:flex-end;margin-bottom:0.75rem;height:48px;}
+.pipe{background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:3px 3px 0 0;}
+</style>
+
+<div class="organ-wrap">
+<div class="pipes-deco" id="pipes-deco"></div>
+<div class="organ-title">GREAT PIPE ORGAN</div>
+<div class="organ-sub">OPUS I</div>
+
+<div class="note-display" id="note-display"><span style="font-size:11px;color:var(--color-text-secondary);">play a note to begin</span></div>
+
+<div class="panel">
+  <div class="panel-label">DRAWBARS — MANUAL I</div>
+  <div class="drawbars-row" id="drawbars-row"></div>
+</div>
+
+<div class="panel">
+  <div class="panel-label">EXPRESSION &amp; EFFECTS</div>
+  <div class="controls-row">
+    <div class="vol-wrap">
+      <span>SWELL</span>
+      <input type="range" id="vol-slider" min="10" max="100" value="70" step="1">
+      <span id="vol-label">70</span>
+    </div>
+    <button class="ctrl-btn on" id="reverb-btn">REVERB</button>
+    <button class="ctrl-btn" id="leslie-btn">LESLIE</button>
+    <button class="ctrl-btn" id="preset-btn">FULL ORGAN</button>
+  </div>
+</div>
+
+<div class="panel">
+  <div class="panel-label">MANUAL KEYBOARD — C4 to E5</div>
+  <div class="keyboard-outer">
+    <div class="keyboard" id="keyboard"></div>
+  </div>
+  <div class="kbd-hint">Click keys · or use A–L (white) · W E T Y U O P (black)</div>
+</div>
+</div>
+
+<script>
+(function(){
+
+const PIPE_HEIGHTS = [28,36,44,36,48,40,52,44,36,48,40,52,44,36,28,22,18,22,28];
+const pipeDeco = document.getElementById('pipes-deco');
+PIPE_HEIGHTS.forEach(h => {
+  const p = document.createElement('div');
+  p.className = 'pipe';
+  p.style.cssText = `width:12px;height:${h}px;`;
+  pipeDeco.appendChild(p);
+});
+
+let ctx=null, masterGain, reverbNode, dryGain, wetGain, leslieGain, leslieOsc;
+let reverbEnabled=true, leslieEnabled=false;
+let activeNotes={};
+
+const DRAWBARS = [
+  {label:"16'",ratio:0.5},
+  {label:"8'", ratio:1},
+  {label:"5\u2153'",ratio:1.5},
+  {label:"4'", ratio:2},
+  {label:"2\u2154'",ratio:3},
+  {label:"2'", ratio:4},
+  {label:"1\u2156'",ratio:5},
+  {label:"1\u2153'",ratio:6},
+  {label:"1'", ratio:8},
+];
+
+const DB_COLORS = [
+  {fill:'#885500',thumb:'#BA7517'},
+  {fill:'#885500',thumb:'#BA7517'},
+  {fill:'#444441',thumb:'#888780'},
+  {fill:'#444441',thumb:'#888780'},
+  {fill:'#444441',thumb:'#888780'},
+  {fill:'#444441',thumb:'#888780'},
+  {fill:'#2C2C2A',thumb:'#5F5E5A'},
+  {fill:'#2C2C2A',thumb:'#5F5E5A'},
+  {fill:'#2C2C2A',thumb:'#5F5E5A'},
+];
+
+const PRESETS = {
+  'FULL ORGAN': [7,8,0,6,0,4,0,0,2],
+  'CHORUS':     [0,8,8,8,6,4,4,2,0],
+  'DIAPASON':   [0,8,0,8,0,4,0,0,0],
+  'SOFT PAD':   [4,6,0,4,0,0,0,0,0],
+};
+let currentPreset = 0;
+const presetNames = Object.keys(PRESETS);
+let dbVals = [...PRESETS['FULL ORGAN']];
+
+function initAudio(){
+  if(ctx) return;
+  ctx = new(window.AudioContext||window.webkitAudioContext)();
+  masterGain = ctx.createGain();
+  masterGain.gain.value = 0.7;
+
+  reverbNode = ctx.createConvolver();
+  reverbNode.buffer = makeCathedralIR();
+
+  dryGain = ctx.createGain(); dryGain.gain.value = 0.25;
+  wetGain = ctx.createGain(); wetGain.gain.value = 0.75;
+
+  leslieGain = ctx.createGain(); leslieGain.gain.value = 1;
+  leslieOsc = ctx.createOscillator();
+  leslieOsc.frequency.value = 0;
+  const leslieDepth = ctx.createGain(); leslieDepth.gain.value = 0;
+  leslieOsc.connect(leslieDepth);
+  leslieDepth.connect(leslieGain.gain);
+  leslieOsc.start();
+
+  masterGain.connect(leslieGain);
+  leslieGain.connect(dryGain);
+  dryGain.connect(ctx.destination);
+  leslieGain.connect(reverbNode);
+  reverbNode.connect(wetGain);
+  wetGain.connect(ctx.destination);
+}
+
+function makeCathedralIR(){
+  const sr = ctx.sampleRate, len = Math.floor(sr*4.8);
+  const ir = ctx.createBuffer(2, len, sr);
+  for(let ch=0;ch<2;ch++){
+    const d = ir.getChannelData(ch);
+    for(let i=0;i<len;i++){
+      const t = i/sr;
+      let env;
+      if(t<0.025) env=0;
+      else if(t<0.18) env=(t-0.025)/0.155;
+      else env=Math.exp(-(t-0.18)*0.95);
+      d[i]=(Math.random()*2-1)*env*(ch===1?(0.9+0.1*Math.sin(i*0.003)):1);
+    }
+  }
+  return ir;
+}
+
+function noteOn(id, freq){
+  if(!ctx||activeNotes[id]) return;
+  const ng = ctx.createGain();
+  ng.gain.setValueAtTime(0, ctx.currentTime);
+  ng.gain.linearRampToValueAtTime(0.22, ctx.currentTime+0.012);
+  ng.connect(masterGain);
+  const oscs = DRAWBARS.map((db,i)=>{
+    const level = dbVals[i]/8;
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type='sine';
+    osc.frequency.value = freq*db.ratio;
+    if(i>0) osc.detune.value=(Math.random()-0.5)*5;
+    const taper = 1/Math.sqrt(db.ratio*0.8+0.5);
+    g.gain.value = level*taper*0.75;
+    osc.connect(g); g.connect(ng); osc.start();
+    return {osc,g};
+  });
+  activeNotes[id]={ng,oscs,freq};
+  updateNoteDisplay();
+}
+
+function noteOff(id){
+  const n=activeNotes[id]; if(!n) return;
+  const now=ctx.currentTime;
+  n.ng.gain.cancelScheduledValues(now);
+  n.ng.gain.setValueAtTime(n.ng.gain.value,now);
+  n.ng.gain.exponentialRampToValueAtTime(0.0001,now+0.45);
+  setTimeout(()=>{
+    n.oscs.forEach(({osc})=>{try{osc.stop();}catch(e){}});
+    try{n.ng.disconnect();}catch(e){}
+  },500);
+  delete activeNotes[id];
+  updateNoteDisplay();
+}
+
+function updateNoteDisplay(){
+  const disp=document.getElementById('note-display');
+  const ids=Object.keys(activeNotes);
+  if(!ids.length){
+    disp.innerHTML='<span style="font-size:11px;color:var(--color-text-secondary);">play a note to begin</span>';
+    return;
+  }
+  disp.innerHTML=ids.map(id=>`<span class="note-pill">${id}</span>`).join('');
+}
+
+const WHITE_KEYS=[
+  {id:'C4',freq:261.63,k:'a',lbl:'A'},
+  {id:'D4',freq:293.66,k:'s',lbl:'S'},
+  {id:'E4',freq:329.63,k:'d',lbl:'D'},
+  {id:'F4',freq:349.23,k:'f',lbl:'F'},
+  {id:'G4',freq:392.00,k:'g',lbl:'G'},
+  {id:'A4',freq:440.00,k:'h',lbl:'H'},
+  {id:'B4',freq:493.88,k:'j',lbl:'J'},
+  {id:'C5',freq:523.25,k:'k',lbl:'K'},
+  {id:'D5',freq:587.33,k:'l',lbl:'L'},
+  {id:'E5',freq:659.25,k:';',lbl:';'},
+];
+const BLACK_KEYS=[
+  {id:'C#4',freq:277.18,k:'w',lbl:'W',pos:0},
+  {id:'D#4',freq:311.13,k:'e',lbl:'E',pos:1},
+  {id:'F#4',freq:369.99,k:'t',lbl:'T',pos:3},
+  {id:'G#4',freq:415.30,k:'y',lbl:'Y',pos:4},
+  {id:'A#4',freq:466.16,k:'u',lbl:'U',pos:5},
+  {id:'C#5',freq:554.37,k:'o',lbl:'O',pos:7},
+  {id:'D#5',freq:622.25,k:'p',lbl:'P',pos:8},
+];
+
+const kbd=document.getElementById('keyboard');
+const KW=44, BW=29;
+kbd.style.width=(WHITE_KEYS.length*KW)+'px';
+
+WHITE_KEYS.forEach((n)=>{
+  const el=document.createElement('div');
+  el.className='wk'; el.dataset.id=n.id; el.dataset.freq=n.freq;
+  el.innerHTML=`<span class="key-label">${n.lbl}</span>`;
+  kbd.appendChild(el);
+});
+
+BLACK_KEYS.forEach(n=>{
+  const el=document.createElement('div');
+  el.className='bk'; el.dataset.id=n.id; el.dataset.freq=n.freq;
+  el.style.left=(n.pos*KW+KW-BW/2)+'px';
+  el.innerHTML=`<span class="key-label">${n.lbl}</span>`;
+  kbd.appendChild(el);
+});
+
+function keyDown(id,freq){
+  initAudio();
+  const el=document.querySelector(`[data-id="${id}"]`);
+  if(el) el.classList.add('lit');
+  noteOn(id,parseFloat(freq));
+}
+function keyUp(id){
+  const el=document.querySelector(`[data-id="${id}"]`);
+  if(el) el.classList.remove('lit');
+  if(activeNotes[id]) noteOff(id);
+}
+
+kbd.addEventListener('mousedown',e=>{
+  const k=e.target.closest('[data-id]');
+  if(k) keyDown(k.dataset.id,k.dataset.freq);
+});
+document.addEventListener('mouseup',()=>{
+  Object.keys(activeNotes).forEach(id=>{
+    const el=document.querySelector(`[data-id="${id}"]`);
+    if(el) el.classList.remove('lit');
+    if(activeNotes[id]) noteOff(id);
+  });
+});
+kbd.addEventListener('touchstart',e=>{
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(t=>{
+    const el=document.elementFromPoint(t.clientX,t.clientY)?.closest('[data-id]');
+    if(el) keyDown(el.dataset.id,el.dataset.freq);
+  });
+},{passive:false});
+kbd.addEventListener('touchend',e=>{
+  e.preventDefault();
+  Array.from(e.changedTouches).forEach(t=>{
+    const el=document.elementFromPoint(t.clientX,t.clientY)?.closest('[data-id]');
+    if(el) keyUp(el.dataset.id);
+  });
+},{passive:false});
+
+const keyMap={};
+[...WHITE_KEYS,...BLACK_KEYS].forEach(n=>keyMap[n.k]=n);
+document.addEventListener('keydown',e=>{
+  if(e.repeat||e.target.tagName==='INPUT') return;
+  const n=keyMap[e.key.toLowerCase()];
+  if(n) keyDown(n.id,n.freq);
+});
+document.addEventListener('keyup',e=>{
+  const n=keyMap[e.key.toLowerCase()];
+  if(n) keyUp(n.id);
+});
+
+const dbRow=document.getElementById('drawbars-row');
+const dbEls=[];
+
+function buildDrawbars(){
+  DRAWBARS.forEach((db,i)=>{
+    const col=document.createElement('div');
+    col.className='db-col';
+    const val=document.createElement('div');
+    val.className='db-val'; val.textContent=dbVals[i];
+    const track=document.createElement('div');
+    track.className='db-track';
+    const fill=document.createElement('div');
+    fill.className='db-fill';
+    fill.style.cssText=`height:${dbVals[i]/8*100}%;background:${DB_COLORS[i].fill};`;
+    const thumb=document.createElement('div');
+    thumb.className='db-thumb';
+    thumb.style.cssText=`background:${DB_COLORS[i].thumb};bottom:${dbVals[i]/8*100}%;`;
+    track.appendChild(fill); track.appendChild(thumb);
+    const lbl=document.createElement('div');
+    lbl.className='db-label'; lbl.textContent=db.label;
+    col.appendChild(val); col.appendChild(track); col.appendChild(lbl);
+    dbRow.appendChild(col);
+    dbEls.push({val,fill,thumb});
+
+    let dragging=false;
+    function updateDb(clientY){
+      const rect=track.getBoundingClientRect();
+      let pct=1-(clientY-rect.top)/rect.height;
+      pct=Math.max(0,Math.min(1,pct));
+      const v=Math.round(pct*8);
+      dbVals[i]=v;
+      val.textContent=v;
+      fill.style.height=(v/8*100)+'%';
+      thumb.style.bottom=(v/8*100)+'%';
+      Object.values(activeNotes).forEach(note=>{
+        const osc=note.oscs[i];
+        if(osc){
+          const taper=1/Math.sqrt(db.ratio*0.8+0.5);
+          osc.g.gain.value=(v/8)*taper*0.75;
+        }
+      });
+    }
+    track.addEventListener('mousedown',e=>{dragging=true;updateDb(e.clientY);});
+    document.addEventListener('mousemove',e=>{if(dragging)updateDb(e.clientY);});
+    document.addEventListener('mouseup',()=>dragging=false);
+    track.addEventListener('touchstart',e=>{e.preventDefault();dragging=true;updateDb(e.touches[0].clientY);},{passive:false});
+    document.addEventListener('touchmove',e=>{if(dragging)updateDb(e.touches[0].clientY);});
+    document.addEventListener('touchend',()=>dragging=false);
+  });
+}
+buildDrawbars();
+
+document.getElementById('reverb-btn').addEventListener('click',function(){
+  reverbEnabled=!reverbEnabled;
+  if(ctx){
+    wetGain.gain.value=reverbEnabled?0.75:0;
+    dryGain.gain.value=reverbEnabled?0.25:1;
+  }
+  this.classList.toggle('on',reverbEnabled);
+  this.textContent=reverbEnabled?'REVERB':'NO REVERB';
+});
+
+document.getElementById('leslie-btn').addEventListener('click',function(){
+  leslieEnabled=!leslieEnabled;
+  initAudio();
+  if(leslieEnabled){
+    leslieOsc.frequency.setTargetAtTime(6.2,ctx.currentTime,0.3);
+    const d=ctx.createGain(); d.gain.value=0.28;
+    leslieOsc.connect(d); d.connect(leslieGain.gain);
+  } else {
+    leslieOsc.frequency.setTargetAtTime(0,ctx.currentTime,0.5);
+  }
+  this.classList.toggle('on',leslieEnabled);
+  this.textContent=leslieEnabled?'LESLIE':'LESLIE';
+});
+
+document.getElementById('preset-btn').addEventListener('click',function(){
+  currentPreset=(currentPreset+1)%presetNames.length;
+  const name=presetNames[currentPreset];
+  dbVals=[...PRESETS[name]];
+  dbEls.forEach(({val,fill,thumb},i)=>{
+    val.textContent=dbVals[i];
+    fill.style.height=(dbVals[i]/8*100)+'%';
+    thumb.style.bottom=(dbVals[i]/8*100)+'%';
+  });
+  this.textContent=name;
+  Object.values(activeNotes).forEach(note=>{
+    note.oscs.forEach((osc,i)=>{
+      const taper=1/Math.sqrt(DRAWBARS[i].ratio*0.8+0.5);
+      osc.g.gain.value=(dbVals[i]/8)*taper*0.75;
+    });
+  });
+});
+
+document.getElementById('vol-slider').addEventListener('input',function(){
+  if(masterGain) masterGain.gain.value=this.value/100;
+  document.getElementById('vol-label').textContent=this.value;
+});
+
+})();
+</script>
+
+</div><!-- /organ-page -->
+</body>
+</html>
