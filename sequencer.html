@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>The Studio — Gonzo's Music Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
     --stage: #191310;
@@ -42,7 +42,7 @@
   /* ---- Transport ---- */
   .transport {
     display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
-    gap: 12px 20px; margin-bottom: 18px; font-size: 13px; color: var(--dim);
+    gap: 12px 20px; margin-bottom: 14px; font-size: 13px; color: var(--dim);
   }
   .transport label { display: flex; align-items: center; gap: 8px; }
   input[type="range"] { accent-color: var(--brass); width: 100px; }
@@ -59,6 +59,25 @@
   #playBtn { min-width: 84px; font-size: 15px; padding: 10px 18px; }
   #playBtn.playing { background: var(--brass-hot); }
 
+  /* ---- Page + bars row ---- */
+  .pagerow {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 12px; font-size: 12px; color: var(--dim);
+  }
+  .pagerow .grp { display: flex; align-items: center; gap: 6px; }
+  .pbtn {
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+    width: 40px; padding: 7px 0; text-align: center;
+    background: transparent; color: var(--dim); border: 1px solid var(--line);
+    border-radius: 4px;
+  }
+  .pbtn.view { color: var(--stage); background: var(--brass); border-color: var(--brass); }
+  .pbtn.sounding:not(.view) {
+    color: var(--brass-hot); border-color: var(--brass);
+    box-shadow: 0 0 8px rgba(201,150,60,0.35);
+  }
+  .pbtn.dead { opacity: 0.35; }
+
   /* ---- Grid ---- */
   .grid-wrap {
     max-width: 100%; overflow-x: auto; padding: 4px;
@@ -73,11 +92,9 @@
   .grid th.beat { color: var(--brass); }
   .track-head {
     display: flex; align-items: center; gap: 8px;
-    padding: 0 10px 0 6px; min-width: 210px;
+    padding: 0 10px 0 6px; min-width: 258px;
   }
-  .track-name {
-    font-size: 13px; font-weight: 600; width: 74px; flex: none;
-  }
+  .track-name { font-size: 13px; font-weight: 600; width: 62px; flex: none; }
   .note-ctl {
     display: flex; align-items: center; gap: 2px;
     font-family: 'IBM Plex Mono', monospace; font-size: 11px;
@@ -87,8 +104,13 @@
     background: transparent; color: var(--dim); border: 1px solid var(--line);
   }
   .note-ctl button:hover { color: var(--brass-hot); border-color: var(--brass); }
-  .note-ctl .nval { width: 3.2ch; text-align: center; color: var(--cream); }
-  .track-head input[type="range"] { width: 62px; }
+  .note-ctl .nval { width: 3.4ch; text-align: center; color: var(--cream); }
+  .kick-var {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    background: #14100c; color: var(--cream);
+    border: 1px solid var(--line); border-radius: 3px; padding: 3px 4px;
+  }
+  .track-head input[type="range"] { width: 92px; }
   .mute {
     width: 24px; height: 24px; flex: none; border-radius: 4px;
     font-size: 10px; padding: 0;
@@ -100,7 +122,7 @@
     width: 34px; height: 34px; border-radius: 5px; cursor: pointer;
     background: #2b2118; border: 1px solid var(--line);
   }
-  .cell.q { background: #322619; }              /* quarter-note columns */
+  .cell.q { background: #322619; }
   .cell.on { background: var(--brass); border-color: #8a6526; }
   .cell.acc {
     background: var(--brass-hot); border-color: var(--brass);
@@ -127,7 +149,7 @@
     border: 1px solid var(--line); border-radius: 4px; padding: 7px 8px;
   }
   .hint {
-    margin-top: 14px; max-width: 620px; text-align: center;
+    margin-top: 14px; max-width: 640px; text-align: center;
     font-size: 12.5px; line-height: 1.6; color: var(--dim);
   }
   .hint kbd {
@@ -148,7 +170,19 @@
   <button id="playBtn">▶ Play</button>
   <label>Tempo <input type="range" id="bpm" min="60" max="180" value="122"> <span class="mono" id="bpmVal">122</span></label>
   <label>Swing <input type="range" id="swing" min="0" max="60" value="12"> <span class="mono" id="swingVal">12%</span></label>
+  <label>Master <input type="range" id="master" min="0" max="100" value="85"> <span class="mono" id="masterVal">85</span></label>
   <button class="ghost" id="clearBtn">Clear</button>
+</div>
+
+<div class="pagerow">
+  <span class="grp">Bars
+    <button class="pbtn" id="bars1">×1</button>
+    <button class="pbtn" id="bars2">×2</button>
+  </span>
+  <span class="grp">Page
+    <button class="pbtn" id="pageA">A</button>
+    <button class="pbtn" id="pageB">B</button>
+  </span>
 </div>
 
 <div class="grid-wrap">
@@ -167,70 +201,116 @@
 
 <p class="hint">
   Click a step to cycle <span style="color:var(--brass)">on</span> →
-  <span style="color:var(--brass-hot)">accent</span> → off.
-  <kbd>Space</kbd> plays/stops. Bass, Pluck &amp; Stab have a per-track pitch (−/+).
-  Patterns save in this browser and export as JSON — the same format Firecloud will sync later.
+  <span style="color:var(--brass-hot)">accent</span> → off. <kbd>Space</kbd> plays/stops,
+  <kbd>Tab</kbd>-free keys <kbd>A</kbd>/<kbd>B</kbd> flip pages. Bars ×2 plays page A then B.
+  The Kick has four voices, and the Clap counts pairs of hands (1 to a crowd). Patterns save here and export as JSON.
 </p>
 
 <script>
 /* ================================================================
-   SequencerEngine — liftable core for Gonzo's Music Room.
-   Lookahead scheduler (25ms timer, 120ms horizon) with sample-
-   accurate triggering. Instruments are plain {name, tonal, trigger}
-   objects — to drive a Music Room instrument instead, register an
-   adapter whose trigger(ctx, dest, time, note, vel) schedules it.
+   SequencerEngine v2 — liftable core for Gonzo's Music Room.
+   32 steps (two 16-step pages), lookahead scheduler, per-track
+   instruments as {name, tonal, trigger(ctx, dest, t, note, vel, tr)}.
    ================================================================ */
 
-const STEPS = 16;
+const STEPS_TOTAL = 32;
+const PAGE = 16;
+
+const KICK_VARIANTS = {
+  punch: { label: 'Punch',    f0: 150, f1: 44, pDec: 0.11, aDec: 0.32, click: 0.40 },
+  deep:  { label: 'Deep',     f0: 112, f1: 36, pDec: 0.16, aDec: 0.50, click: 0.16 },
+  boom:  { label: 'Boom 808', f0: 96,  f1: 31, pDec: 0.24, aDec: 0.95, click: 0.08 },
+  tight: { label: 'Tight',    f0: 175, f1: 54, pDec: 0.06, aDec: 0.15, click: 0.55 }
+};
+
+const CLAP_VARIANTS = {
+  one:   { label: '1 pair',  n: 1 },
+  two:   { label: '2 pairs', n: 2 },
+  three: { label: '3 pairs', n: 3 },
+  four:  { label: '4 pairs', n: 4 },
+  crowd: { label: 'Crowd',   n: 8 }
+};
+const VARIANT_SETS = { kick: KICK_VARIANTS, clap: CLAP_VARIANTS };
 
 const InstrumentBank = {
-  kick: { name: 'Kick', tonal: false, trigger(ctx, dest, t, note, vel) {
+  kick: { name: 'Kick', tonal: false, trigger(ctx, dest, t, note, vel, tr) {
+    const v = KICK_VARIANTS[(tr && tr.variant) || 'punch'];
     const o = ctx.createOscillator(), g = ctx.createGain();
     o.type = 'sine';
-    o.frequency.setValueAtTime(150, t);
-    o.frequency.exponentialRampToValueAtTime(44, t + 0.11);
+    o.frequency.setValueAtTime(v.f0, t);
+    o.frequency.exponentialRampToValueAtTime(v.f1, t + v.pDec);
     g.gain.setValueAtTime(vel, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + v.aDec);
     o.connect(g).connect(dest);
-    o.start(t); o.stop(t + 0.35);
-    // click transient
-    const n = noiseSrc(ctx), ng = ctx.createGain(), hp = ctx.createBiquadFilter();
-    hp.type = 'highpass'; hp.frequency.value = 900;
-    ng.gain.setValueAtTime(0.4 * vel, t);
-    ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
-    n.connect(hp).connect(ng).connect(dest);
-    n.start(t); n.stop(t + 0.03);
+    o.start(t); o.stop(t + v.aDec + 0.05);
+    if (v.click > 0.02) {
+      const n = noiseSrc(ctx), ng = ctx.createGain(), hp = ctx.createBiquadFilter();
+      hp.type = 'highpass'; hp.frequency.value = 900;
+      ng.gain.setValueAtTime(v.click * vel, t);
+      ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.02);
+      n.connect(hp).connect(ng).connect(dest);
+      n.start(t); n.stop(t + 0.03);
+    }
   }},
   snare: { name: 'Snare', tonal: false, trigger(ctx, dest, t, note, vel) {
     const n = noiseSrc(ctx), bp = ctx.createBiquadFilter(), g = ctx.createGain();
     bp.type = 'bandpass'; bp.frequency.value = 1800; bp.Q.value = 0.6;
-    g.gain.setValueAtTime(0.8 * vel, t);
+    g.gain.setValueAtTime(0.7 * vel, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
     n.connect(bp).connect(g).connect(dest);
     n.start(t); n.stop(t + 0.2);
     const o = ctx.createOscillator(), og = ctx.createGain();
     o.type = 'triangle'; o.frequency.setValueAtTime(190, t);
-    og.gain.setValueAtTime(0.5 * vel, t);
+    og.gain.setValueAtTime(0.45 * vel, t);
     og.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
     o.connect(og).connect(dest);
     o.start(t); o.stop(t + 0.1);
   }},
   hatC: { name: 'Hat', tonal: false, trigger(ctx, dest, t, note, vel) {
-    hat(ctx, dest, t, vel, 0.05);
+    hat(ctx, dest, t, vel * 0.85, 0.06);
   }},
   hatO: { name: 'Open Hat', tonal: false, trigger(ctx, dest, t, note, vel) {
-    hat(ctx, dest, t, vel, 0.32);
+    hat(ctx, dest, t, vel * 0.75, 0.35);
   }},
-  clap: { name: 'Clap', tonal: false, trigger(ctx, dest, t, note, vel) {
-    for (let i = 0; i < 3; i++) {
-      const n = noiseSrc(ctx), bp = ctx.createBiquadFilter(), g = ctx.createGain();
-      bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 1.2;
-      const tt = t + i * 0.012;
-      g.gain.setValueAtTime(0.55 * vel, tt);
-      g.gain.exponentialRampToValueAtTime(0.0001, tt + (i === 2 ? 0.16 : 0.03));
-      n.connect(bp).connect(g).connect(dest);
-      n.start(tt); n.stop(tt + 0.2);
+  clap: { name: 'Clap', tonal: false, trigger(ctx, dest, t, note, vel, tr) {
+    /* Each "pair of hands" is one sharp noise burst through its own
+       body resonance; several clappers spread over ~25ms with
+       different resonances chord together like a real group. */
+    const n = CLAP_VARIANTS[(tr && tr.variant) || 'three'].n;
+    const bases = [1500, 1180, 1860, 1340, 2100, 1020, 1660, 2350];
+    for (let i = 0; i < n; i++) {
+      const tt = t + (i === 0 ? 0 : Math.random() * 0.025);
+      const src = noiseSrc(ctx), bp = ctx.createBiquadFilter(), g = ctx.createGain();
+      bp.type = 'bandpass';
+      bp.frequency.value = bases[i] * (0.95 + Math.random() * 0.1);
+      bp.Q.value = 1.9;
+      const amp = (0.8 / Math.sqrt(n)) * vel * (0.8 + Math.random() * 0.35);
+      g.gain.setValueAtTime(amp, tt);
+      g.gain.exponentialRampToValueAtTime(0.0001, tt + 0.06 + Math.random() * 0.035);
+      src.connect(bp).connect(g).connect(dest);
+      src.start(tt); src.stop(tt + 0.15);
     }
+    /* shared room tail — grows a little with the group size */
+    const tail = noiseSrc(ctx), tbp = ctx.createBiquadFilter(), tg = ctx.createGain();
+    tbp.type = 'bandpass'; tbp.frequency.value = 1350; tbp.Q.value = 0.8;
+    tg.gain.setValueAtTime(0.001, t);
+    tg.gain.linearRampToValueAtTime(0.11 * vel * Math.sqrt(n) * 0.7, t + 0.02);
+    tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
+    tail.connect(tbp).connect(tg).connect(dest);
+    tail.start(t); tail.stop(t + 0.32);
+  }},
+  sub: { name: 'Sub', tonal: true, trigger(ctx, dest, t, note, vel) {
+    // 808-style sub: pure sine, quick pitch settle, long tail.
+    const f = midiFreq(note);
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f * 2.2, t);
+    o.frequency.exponentialRampToValueAtTime(f, t + 0.045);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.85 * vel, t + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.65);
+    o.connect(g).connect(dest);
+    o.start(t); o.stop(t + 0.7);
   }},
   bass: { name: 'Bass', tonal: true, trigger(ctx, dest, t, note, vel) {
     const f = midiFreq(note);
@@ -239,20 +319,10 @@ const InstrumentBank = {
     fl.type = 'lowpass'; fl.Q.value = 7;
     fl.frequency.setValueAtTime(f * (2 + vel * 8), t);
     fl.frequency.exponentialRampToValueAtTime(f * 1.4, t + 0.18);
-    g.gain.setValueAtTime(0.55 * vel, t);
+    g.gain.setValueAtTime(0.5 * vel, t);
     g.gain.setTargetAtTime(0.0001, t + 0.16, 0.05);
     o.connect(fl).connect(g).connect(dest);
     o.start(t); o.stop(t + 0.45);
-  }},
-  pluck: { name: 'Pluck', tonal: true, trigger(ctx, dest, t, note, vel) {
-    const f = midiFreq(note);
-    const o = ctx.createOscillator(), g = ctx.createGain(), fl = ctx.createBiquadFilter();
-    o.type = 'triangle'; o.frequency.value = f;
-    fl.type = 'lowpass'; fl.frequency.value = f * 6;
-    g.gain.setValueAtTime(0.5 * vel, t);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
-    o.connect(fl).connect(g).connect(dest);
-    o.start(t); o.stop(t + 0.28);
   }},
   stab: { name: 'Stab', tonal: true, trigger(ctx, dest, t, note, vel) {
     const f = midiFreq(note);
@@ -261,7 +331,7 @@ const InstrumentBank = {
     fl.frequency.setValueAtTime(f * 1.5, t);
     fl.frequency.exponentialRampToValueAtTime(f * 7, t + 0.03);
     fl.frequency.exponentialRampToValueAtTime(f * 2, t + 0.2);
-    g.gain.setValueAtTime(0.34 * vel, t);
+    g.gain.setValueAtTime(0.24 * vel, t);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
     for (const det of [-7, 0, 7]) {
       const o = ctx.createOscillator();
@@ -284,30 +354,60 @@ function noiseSrc(ctx) {
   s.buffer = _noiseBuf;
   return s;
 }
-function hat(ctx, dest, t, vel, decay) {
-  const n = noiseSrc(ctx), hp = ctx.createBiquadFilter(), g = ctx.createGain();
-  hp.type = 'highpass'; hp.frequency.value = 7500;
-  g.gain.setValueAtTime(0.4 * vel, t);
-  g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
-  n.connect(hp).connect(g).connect(dest);
-  n.start(t); n.stop(t + decay + 0.02);
+/* Metallic cymbal source: six square waves at inharmonic ratios
+   (the 808 recipe), rendered once into a shared buffer. */
+let _metalBuf = null;
+function metalBuf(ctx) {
+  if (_metalBuf) return _metalBuf;
+  const sr = ctx.sampleRate, len = Math.floor(sr * 0.6);
+  const buf = ctx.createBuffer(1, len, sr);
+  const d = buf.getChannelData(0);
+  const ratios = [2, 3, 4.16, 5.43, 6.79, 8.21];
+  for (let i = 0; i < len; i++) {
+    const tt = i / sr; let s = 0;
+    for (const r of ratios) s += Math.sign(Math.sin(2 * Math.PI * 40 * r * tt + r));
+    d[i] = s / 6;
+  }
+  _metalBuf = buf;
+  return buf;
 }
+function hat(ctx, dest, t, vel, decay) {
+  const src = ctx.createBufferSource();
+  src.buffer = metalBuf(ctx);
+  src.playbackRate.value = 0.97 + Math.random() * 0.06;  // tiny per-hit shimmer
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 10000; bp.Q.value = 1;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 7200;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.6 * vel, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + decay);
+  src.connect(bp); bp.connect(hp); hp.connect(g); g.connect(dest);
+  src.start(t); src.stop(t + decay + 0.05);
+  /* a whisper of noise sizzle on top of the metal */
+  const nz = noiseSrc(ctx), nhp = ctx.createBiquadFilter(), ng = ctx.createGain();
+  nhp.type = 'highpass'; nhp.frequency.value = 9500;
+  ng.gain.setValueAtTime(0.1 * vel, t);
+  ng.gain.exponentialRampToValueAtTime(0.0001, t + decay * 0.8);
+  nz.connect(nhp).connect(ng).connect(dest);
+  nz.start(t); nz.stop(t + decay + 0.02);
+}
+
 function midiFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
 
 class SequencerEngine {
   constructor(ctx, destination, tracks) {
     this.ctx = ctx;
-    this.tracks = tracks;             // [{instKey, note, vol, mute, steps[16], gainNode}]
+    this.tracks = tracks;
     this.bpm = 122;
-    this.swing = 0.12;                // 0–0.6 of half a step
+    this.swing = 0.12;
+    this.length = STEPS_TOTAL;     // 16 (bars ×1) or 32 (bars ×2)
     this.playing = false;
     this.step = 0;
     this.nextTime = 0;
     this.timer = null;
-    this.onStep = null;               // UI callback: (step, audioTime)
+    this.onStep = null;
 
     this.master = ctx.createGain();
-    this.master.gain.value = 0.9;
+    this.master.gain.value = 0.85;
     this.comp = ctx.createDynamicsCompressor();
     this.comp.threshold.value = -12; this.comp.ratio.value = 5;
     this.master.connect(this.comp).connect(destination);
@@ -318,6 +418,7 @@ class SequencerEngine {
     }
   }
   stepDur() { return 60 / this.bpm / 4; }
+  setMaster(v) { this.master.gain.setTargetAtTime(v, this.ctx.currentTime, 0.02); }
   start() {
     if (this.playing) return;
     this.playing = true;
@@ -333,15 +434,15 @@ class SequencerEngine {
     while (this.nextTime < this.ctx.currentTime + 0.12) {
       const dur = this.stepDur();
       let t = this.nextTime;
-      if (this.step % 2 === 1) t += this.swing * dur;   // swing offbeats
+      if (this.step % 2 === 1) t += this.swing * dur;
       for (const tr of this.tracks) {
         const s = tr.steps[this.step];
         if (!s || tr.mute) continue;
         const vel = s === 2 ? 1.0 : 0.65;
-        InstrumentBank[tr.instKey].trigger(this.ctx, tr.gainNode, t, tr.note, vel);
+        InstrumentBank[tr.instKey].trigger(this.ctx, tr.gainNode, t, tr.note, vel, tr);
       }
       if (this.onStep) this.onStep(this.step, t);
-      this.step = (this.step + 1) % STEPS;
+      this.step = (this.step + 1) % this.length;
       this.nextTime += dur;
     }
   }
@@ -352,33 +453,35 @@ class SequencerEngine {
    ================================================================ */
 
 const TRACK_DEFS = [
-  { instKey: 'kick',  note: 0,  vol: 0.95 },
-  { instKey: 'snare', note: 0,  vol: 0.8 },
-  { instKey: 'hatC',  note: 0,  vol: 0.55 },
-  { instKey: 'hatO',  note: 0,  vol: 0.5 },
-  { instKey: 'clap',  note: 0,  vol: 0.7 },
-  { instKey: 'bass',  note: 38, vol: 0.85 },
-  { instKey: 'pluck', note: 62, vol: 0.6 },
-  { instKey: 'stab',  note: 50, vol: 0.6 }
+  { instKey: 'kick',  note: 0,  vol: 0.95, variant: 'punch' },
+  { instKey: 'snare', note: 0,  vol: 0.75 },
+  { instKey: 'hatC',  note: 0,  vol: 0.45 },
+  { instKey: 'hatO',  note: 0,  vol: 0.42 },
+  { instKey: 'clap',  note: 0,  vol: 0.62, variant: 'three' },
+  { instKey: 'sub',   note: 26, vol: 0.9 },
+  { instKey: 'bass',  note: 38, vol: 0.78 },
+  { instKey: 'stab',  note: 50, vol: 0.5 }
 ];
+/* Demo: page A groove, page B variation with a fill */
 const DEMO = {
-  kick:  [2,0,0,0, 1,0,0,0, 2,0,0,0, 1,0,0,1],
-  snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0],
-  hatC:  [1,0,2,0, 1,0,2,0, 1,0,2,0, 1,0,2,1],
-  hatO:  [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0],
-  clap:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 2,0,0,0],
-  bass:  [2,0,0,1, 0,0,1,0, 2,0,0,1, 0,1,0,0],
-  pluck: [0,0,1,0, 0,2,0,0, 0,0,1,0, 0,0,2,0],
-  stab:  [0,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0]
+  kick:  [2,0,0,0, 1,0,0,0, 2,0,0,0, 1,0,0,1,  2,0,0,0, 1,0,0,0, 2,0,0,0, 1,0,1,0],
+  snare: [0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,0,0,  0,0,0,0, 2,0,0,0, 0,0,0,0, 2,0,1,1],
+  hatC:  [1,0,2,0, 1,0,2,0, 1,0,2,0, 1,0,2,1,  1,0,2,0, 1,0,2,0, 1,0,2,0, 1,2,1,2],
+  hatO:  [0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,1,0,  0,0,0,0, 0,0,1,0, 0,0,0,0, 0,0,0,1],
+  clap:  [0,0,0,0, 0,0,0,0, 0,0,0,0, 2,0,0,0,  0,0,0,0, 0,0,0,0, 0,0,0,0, 2,0,0,2],
+  sub:   [2,0,0,0, 0,0,0,1, 0,0,2,0, 0,0,0,0,  2,0,0,0, 0,0,0,1, 0,0,2,0, 0,1,0,0],
+  bass:  [0,0,2,1, 0,0,1,0, 0,0,0,1, 0,1,0,0,  0,0,2,1, 0,0,1,0, 0,0,0,1, 1,0,1,0],
+  stab:  [0,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,0,0,  0,0,0,0, 0,0,0,0, 2,0,0,0, 0,0,2,0]
 };
 
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const noteName = m => NOTE_NAMES[m % 12] + (Math.floor(m / 12) - 1);
 
 let ctx = null, seq = null;
+let viewPage = 0;                 // 0 = A, 1 = B
 const tracks = TRACK_DEFS.map(d => ({
   ...d, mute: false,
-  steps: (DEMO[d.instKey] || Array(STEPS).fill(0)).slice()
+  steps: (DEMO[d.instKey] || Array(STEPS_TOTAL).fill(0)).slice()
 }));
 
 function ensureAudio() {
@@ -387,20 +490,24 @@ function ensureAudio() {
     seq = new SequencerEngine(ctx, ctx.destination, tracks);
     seq.bpm = +bpmEl.value;
     seq.swing = +swingEl.value / 100;
+    seq.length = barsLen;
+    seq.master.gain.value = +masterEl.value / 100;
     seq.onStep = markStep;
   }
   if (ctx.state === 'suspended') ctx.resume();
 }
 
-/* ---- Build grid ---- */
+/* ---- Build grid (renders one 16-step page at a time) ---- */
 const gridEl = document.getElementById('grid');
-const cellEls = [];   // [trackIdx][step]
+const cellEls = [];   // [trackIdx][col 0..15]
+const headThs = [];
 
 function buildGrid() {
   const head = document.createElement('tr');
-  head.innerHTML = '<th></th>' + Array.from({length: STEPS}, (_, i) =>
-    `<th class="${i % 4 === 0 ? 'beat' : ''}">${i + 1}</th>`).join('');
+  head.innerHTML = '<th></th>' + Array.from({length: PAGE}, (_, i) =>
+    `<th class="${i % 4 === 0 ? 'beat' : ''}" id="colh${i}">${i + 1}</th>`).join('');
   gridEl.appendChild(head);
+  for (let i = 0; i < PAGE; i++) headThs.push(document.getElementById('colh' + i));
 
   tracks.forEach((tr, ti) => {
     const row = document.createElement('tr');
@@ -408,46 +515,64 @@ function buildGrid() {
     const inst = InstrumentBank[tr.instKey];
     const headDiv = document.createElement('div');
     headDiv.className = 'track-head';
+    const vset = VARIANT_SETS[tr.instKey];
+    const kickSel = vset
+      ? `<select class="kick-var" data-kv="${ti}">` +
+        Object.entries(vset).map(([k, v]) =>
+          `<option value="${k}"${k === tr.variant ? ' selected' : ''}>${v.label}</option>`).join('') +
+        `</select>`
+      : inst.tonal
+        ? `<span class="note-ctl">
+             <button data-nt="${ti}" data-d="-1">−</button>
+             <span class="nval" id="nv${ti}">${noteName(tr.note)}</span>
+             <button data-nt="${ti}" data-d="1">+</button>
+           </span>`
+        : `<span class="note-ctl" style="visibility:hidden"><button>−</button><span class="nval">—</span><button>+</button></span>`;
     headDiv.innerHTML = `
       <button class="mute" data-t="${ti}" title="Mute">M</button>
       <span class="track-name">${inst.name}</span>
-      ${inst.tonal ? `<span class="note-ctl">
-          <button data-nt="${ti}" data-d="-1">−</button>
-          <span class="nval" id="nv${ti}">${noteName(tr.note)}</span>
-          <button data-nt="${ti}" data-d="1">+</button>
-        </span>` : `<span class="note-ctl" style="visibility:hidden"><button>−</button><span class="nval">—</span><button>+</button></span>`}
+      ${kickSel}
       <input type="range" min="0" max="100" value="${Math.round(tr.vol * 100)}" data-vol="${ti}" title="Volume">
     `;
     th.appendChild(headDiv);
     row.appendChild(th);
 
     cellEls[ti] = [];
-    for (let s = 0; s < STEPS; s++) {
+    for (let c = 0; c < PAGE; c++) {
       const td = document.createElement('td');
-      const c = document.createElement('div');
-      c.className = 'cell' + (s % 4 === 0 ? ' q' : '');
-      c.dataset.t = ti; c.dataset.s = s;
-      paintCell(c, tr.steps[s]);
-      td.appendChild(c);
+      const cel = document.createElement('div');
+      cel.className = 'cell' + (c % 4 === 0 ? ' q' : '');
+      cel.dataset.t = ti; cel.dataset.c = c;
+      td.appendChild(cel);
       row.appendChild(td);
-      cellEls[ti][s] = c;
+      cellEls[ti][c] = cel;
     }
     gridEl.appendChild(row);
   });
+  repaintPage();
 }
 function paintCell(c, v) {
   c.classList.toggle('on', v === 1);
   c.classList.toggle('acc', v === 2);
 }
+function repaintPage() {
+  const off = viewPage * PAGE;
+  for (let i = 0; i < PAGE; i++) headThs[i].textContent = off + i + 1;
+  tracks.forEach((tr, ti) => {
+    for (let c = 0; c < PAGE; c++) paintCell(cellEls[ti][c], tr.steps[off + c]);
+  });
+  document.getElementById('pageA').classList.toggle('view', viewPage === 0);
+  document.getElementById('pageB').classList.toggle('view', viewPage === 1);
+}
 buildGrid();
 
 gridEl.addEventListener('pointerdown', e => {
-  const c = e.target.closest('.cell');
-  if (c) {
+  const cel = e.target.closest('.cell');
+  if (cel) {
     ensureAudio();
-    const t = +c.dataset.t, s = +c.dataset.s;
+    const t = +cel.dataset.t, s = viewPage * PAGE + +cel.dataset.c;
     tracks[t].steps[s] = (tracks[t].steps[s] + 1) % 3;
-    paintCell(c, tracks[t].steps[s]);
+    paintCell(cel, tracks[t].steps[s]);
     return;
   }
   const m = e.target.closest('.mute');
@@ -460,30 +585,68 @@ gridEl.addEventListener('pointerdown', e => {
   const nb = e.target.closest('[data-nt]');
   if (nb) {
     const t = +nb.dataset.nt;
-    tracks[t].note = Math.max(24, Math.min(96, tracks[t].note + +nb.dataset.d));
+    tracks[t].note = Math.max(21, Math.min(96, tracks[t].note + +nb.dataset.d));
     document.getElementById('nv' + t).textContent = noteName(tracks[t].note);
   }
 });
 gridEl.addEventListener('input', e => {
   const v = e.target.closest('[data-vol]');
-  if (!v) return;
-  const t = +v.dataset.vol;
-  tracks[t].vol = v.value / 100;
-  if (tracks[t].gainNode) tracks[t].gainNode.gain.setTargetAtTime(tracks[t].vol, ctx.currentTime, 0.02);
+  if (v) {
+    const t = +v.dataset.vol;
+    tracks[t].vol = v.value / 100;
+    if (tracks[t].gainNode) tracks[t].gainNode.gain.setTargetAtTime(tracks[t].vol, ctx.currentTime, 0.02);
+    return;
+  }
+});
+gridEl.addEventListener('change', e => {
+  const kv = e.target.closest('[data-kv]');
+  if (kv) tracks[+kv.dataset.kv].variant = kv.value;
 });
 
-/* ---- Step highlight (audio-clock synced) ---- */
+/* ---- Pages & bars ---- */
+let barsLen = STEPS_TOTAL;   // 32 by default
+
+function setViewPage(p) {
+  viewPage = p;
+  repaintPage();
+  clearNow();
+}
+function setBars(len) {
+  barsLen = len;
+  if (seq) {
+    seq.length = len;
+    if (seq.step >= len) seq.step = 0;
+  }
+  document.getElementById('bars1').classList.toggle('view', len === PAGE);
+  document.getElementById('bars2').classList.toggle('view', len === STEPS_TOTAL);
+  document.getElementById('pageB').classList.toggle('dead', len === PAGE);
+  if (len === PAGE && viewPage === 1) setViewPage(0);
+}
+document.getElementById('pageA').addEventListener('click', () => setViewPage(0));
+document.getElementById('pageB').addEventListener('click', () => setViewPage(1));
+document.getElementById('bars1').addEventListener('click', () => setBars(PAGE));
+document.getElementById('bars2').addEventListener('click', () => setBars(STEPS_TOTAL));
+setBars(STEPS_TOTAL);
+
+/* ---- Step highlight (audio-clock synced, absolute steps) ---- */
 const pendingSteps = [];
 function markStep(step, time) { pendingSteps.push({ step, time }); }
 let lastLit = -1;
+function clearNow() {
+  document.querySelectorAll('.cell.now').forEach(c => c.classList.remove('now'));
+}
 function raf() {
   if (seq && seq.playing && ctx) {
     while (pendingSteps.length && pendingSteps[0].time <= ctx.currentTime) {
       lastLit = pendingSteps.shift().step;
     }
+    const soundingPage = Math.floor(lastLit / PAGE);
+    document.getElementById('pageA').classList.toggle('sounding', soundingPage === 0);
+    document.getElementById('pageB').classList.toggle('sounding', soundingPage === 1);
+    const col = lastLit - viewPage * PAGE;
     for (let ti = 0; ti < tracks.length; ti++) {
-      for (let s = 0; s < STEPS; s++) {
-        cellEls[ti][s].classList.toggle('now', s === lastLit);
+      for (let c = 0; c < PAGE; c++) {
+        cellEls[ti][c].classList.toggle('now', c === col);
       }
     }
   }
@@ -491,15 +654,11 @@ function raf() {
 }
 requestAnimationFrame(raf);
 
-function clearHighlights() {
-  pendingSteps.length = 0; lastLit = -1;
-  document.querySelectorAll('.cell.now').forEach(c => c.classList.remove('now'));
-}
-
 /* ---- Transport ---- */
 const playBtn = document.getElementById('playBtn');
 const bpmEl = document.getElementById('bpm');
 const swingEl = document.getElementById('swing');
+const masterEl = document.getElementById('master');
 
 function togglePlay() {
   ensureAudio();
@@ -507,7 +666,10 @@ function togglePlay() {
     seq.stop();
     playBtn.textContent = '▶ Play';
     playBtn.classList.remove('playing');
-    clearHighlights();
+    pendingSteps.length = 0; lastLit = -1;
+    clearNow();
+    document.getElementById('pageA').classList.remove('sounding');
+    document.getElementById('pageB').classList.remove('sounding');
   } else {
     seq.start();
     playBtn.textContent = '■ Stop';
@@ -516,10 +678,10 @@ function togglePlay() {
 }
 playBtn.addEventListener('click', togglePlay);
 window.addEventListener('keydown', e => {
-  if (e.code === 'Space' && !e.repeat && e.target.tagName !== 'INPUT') {
-    e.preventDefault();
-    togglePlay();
-  }
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if (e.code === 'Space' && !e.repeat) { e.preventDefault(); togglePlay(); }
+  else if (e.key === 'a' || e.key === 'A') setViewPage(0);
+  else if (e.key === 'b' || e.key === 'B') { if (barsLen === STEPS_TOTAL) setViewPage(1); }
 });
 bpmEl.addEventListener('input', () => {
   document.getElementById('bpmVal').textContent = bpmEl.value;
@@ -529,18 +691,22 @@ swingEl.addEventListener('input', () => {
   document.getElementById('swingVal').textContent = swingEl.value + '%';
   if (seq) seq.swing = +swingEl.value / 100;
 });
+masterEl.addEventListener('input', () => {
+  document.getElementById('masterVal').textContent = masterEl.value;
+  ensureAudio();
+  seq.setMaster(+masterEl.value / 100);
+});
 document.getElementById('clearBtn').addEventListener('click', () => {
-  tracks.forEach((tr, ti) => {
-    tr.steps.fill(0);
-    cellEls[ti].forEach(c => paintCell(c, 0));
-  });
+  tracks.forEach(tr => tr.steps.fill(0));
+  repaintPage();
 });
 
 /* ================================================================
-   Patterns — JSON format shared with future Firecloud sync:
-   { name, bpm, swing, tracks: [{instKey, note, vol, mute, steps}] }
-   localStorage is feature-detected: it works on gonzogonzo.com but
-   may be unavailable in sandboxed previews; export/import always works.
+   Patterns — JSON v2: { name, version, bpm, swing, master, bars,
+   tracks: [{instKey, note, vol, mute, variant?, steps[32]}] }.
+   v1 patterns (16 steps, no version) load fine: steps are padded
+   and bars set to ×1. localStorage is feature-detected; export /
+   import always works.
    ================================================================ */
 const store = (() => {
   try { const k = '__t'; localStorage.setItem(k, k); localStorage.removeItem(k); return localStorage; }
@@ -550,26 +716,41 @@ const STORE_KEY = 'studio-patterns-v1';
 
 function serialize(name) {
   return {
-    name, bpm: +bpmEl.value, swing: +swingEl.value,
-    tracks: tracks.map(t => ({ instKey: t.instKey, note: t.note, vol: t.vol, mute: t.mute, steps: t.steps.slice() }))
+    name, version: 2,
+    bpm: +bpmEl.value, swing: +swingEl.value, master: +masterEl.value,
+    bars: barsLen === STEPS_TOTAL ? 2 : 1,
+    tracks: tracks.map(t => ({
+      instKey: t.instKey, note: t.note, vol: t.vol, mute: t.mute,
+      variant: t.variant, steps: t.steps.slice()
+    }))
   };
 }
 function apply(p) {
   bpmEl.value = p.bpm; bpmEl.dispatchEvent(new Event('input'));
   swingEl.value = p.swing; swingEl.dispatchEvent(new Event('input'));
-  p.tracks.forEach((pt, i) => {
-    if (!tracks[i] || tracks[i].instKey !== pt.instKey) return;
-    tracks[i].note = pt.note; tracks[i].vol = pt.vol; tracks[i].mute = pt.mute;
-    tracks[i].steps = pt.steps.slice();
-    cellEls[i].forEach((c, s) => paintCell(c, pt.steps[s]));
+  if (p.master !== undefined) { masterEl.value = p.master; masterEl.dispatchEvent(new Event('input')); }
+  setBars(p.bars === 2 ? STEPS_TOTAL : PAGE);
+  p.tracks.forEach(pt => {
+    const i = tracks.findIndex(t => t.instKey === pt.instKey);
+    if (i === -1) return;
+    const t = tracks[i];
+    t.note = pt.note; t.vol = pt.vol; t.mute = pt.mute;
+    if (pt.variant) t.variant = pt.variant;
+    t.steps = pt.steps.slice();
+    while (t.steps.length < STEPS_TOTAL) t.steps.push(0);
     const nv = document.getElementById('nv' + i);
-    if (nv) nv.textContent = noteName(pt.note);
+    if (nv) nv.textContent = noteName(t.note);
     const volEl = document.querySelector(`[data-vol="${i}"]`);
-    volEl.value = Math.round(pt.vol * 100);
+    if (volEl) volEl.value = Math.round(t.vol * 100);
     const muteEl = document.querySelector(`.mute[data-t="${i}"]`);
-    muteEl.classList.toggle('on', pt.mute);
-    if (tracks[i].gainNode) tracks[i].gainNode.gain.value = pt.vol;
+    if (muteEl) muteEl.classList.toggle('on', t.mute);
+    const kvEl = document.querySelector(`[data-kv="${i}"]`);
+    if (kvEl && t.variant) kvEl.value = t.variant;
+    if (t.gainNode) t.gainNode.gain.value = t.vol;
   });
+  /* v1 files carried no sub track and no bars field */
+  if (p.version === undefined && p.tracks.every(pt => (pt.steps || []).length <= PAGE)) setBars(PAGE);
+  repaintPage();
 }
 function savedPatterns() {
   if (!store) return {};
