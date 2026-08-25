@@ -1,35 +1,143 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bass Synth -- Gonzo's Music Room</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bass — Gonzo's Music Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:#0b0807;color:#d4c4a0;font-family:'Special Elite',serif;display:flex;flex-direction:column}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.04;pointer-events:none;z-index:900}
-.nav{padding:0.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10}
-.back-btn{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;padding:0.35rem 0.75rem;border:1px solid #2a1808;transition:color 0.2s,border-color 0.2s}
+.nav{padding:.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10}
+.back-btn{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.14em;color:#7a6040;text-decoration:none;padding:.35rem .75rem;border:1px solid #2a1808;transition:color .2s,border-color .2s}
 .back-btn:hover{color:#d97706;border-color:#d97706}
-.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;z-index:1}
-.icon{font-size:4.5rem;margin-bottom:1.2rem;line-height:1}
-.name{font-size:2.8rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,0.3);margin-bottom:0.5rem}
-.flavor{font-family:'Caveat',cursive;font-size:1.3rem;color:#7a6040;margin-bottom:1.8rem}
-.wip-tag{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:#4a3828;border:1px solid #2a1808;padding:0.4rem 1rem;margin-bottom:2rem;display:inline-block}
-.back-link{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;border:1px solid #2a1808;padding:0.5rem 1.1rem;transition:color 0.2s,border-color 0.2s}
-.back-link:hover{color:#d97706;border-color:#d97706}
-</style>
-</head>
-<body>
+.main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.6rem 1rem 3rem;position:relative;z-index:1}
+.iname{font-size:2.4rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,.3);text-align:center}
+.flavor{font-family:'Caveat',cursive;font-size:1.25rem;color:#7a6040;margin:.2rem 0 1.4rem;text-align:center}
+.panel{display:flex;flex-wrap:wrap;gap:14px 26px;justify-content:center;margin-bottom:1.5rem;
+  font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.12em;color:#7a6040;
+  background:#141009;border:1px solid #2a1808;border-radius:8px;padding:14px 20px;max-width:640px}
+.panel label{display:flex;flex-direction:column;gap:5px;align-items:center}
+.panel input[type=range]{width:100px;accent-color:#d97706}
+.wbtn{font-family:'Share Tech Mono',monospace;font-size:.58rem;background:none;
+  border:1px solid #2a1808;color:#7a6040;padding:4px 10px;cursor:pointer}
+.wbtn.sel{color:#fde68a;border-color:#d97706}
+.kb-scroll{max-width:100%;overflow-x:auto;padding:4px 4px 14px}
+.kb{position:relative;display:flex;height:170px}
+.key{position:relative;width:46px;height:100%;background:linear-gradient(180deg,#e8dcc4,#cfc0a0);border:1px solid #1a1005;border-radius:0 0 4px 4px;cursor:pointer;flex:none}
+.key.playing{background:linear-gradient(180deg,#fde68a,#d97706)}
+.key.black{position:absolute;width:28px;height:60%;background:linear-gradient(180deg,#241a10,#0b0807);border:1px solid #000;z-index:2;border-radius:0 0 3px 3px}
+.key.black.playing{background:linear-gradient(180deg,#d97706,#7a4a06)}
+.hint{margin-top:1rem;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.12em;color:#4a3828;text-align:center}
+</style></head><body>
 <nav class="nav"><a href="index.html" class="back-btn">← MUSIC ROOM</a></nav>
 <main class="main">
-  <div class="icon">🎛️</div>
-  <div class="name">Bass Synth</div>
-  <div class="flavor">Oscillator · filter · step sequencer</div>
-  <div class="wip-tag">[ UNDER CONSTRUCTION ]</div>
-  <a href="index.html" class="back-link">← BACK TO MUSIC ROOM</a>
+<div class="iname">Bass</div>
+<div class="flavor">Mono synth — squelch to taste</div>
+<div class="panel">
+  <label>WAVE<span>
+    <button class="wbtn sel" data-w="sawtooth">SAW</button>
+    <button class="wbtn" data-w="square">SQR</button></span></label>
+  <label>SUB<span><button class="wbtn" id="subBtn">OFF</button></span></label>
+  <label>CUTOFF<input type="range" id="cut" min="0" max="100" value="55"></label>
+  <label>RESO<input type="range" id="res" min="0" max="100" value="55"></label>
+  <label>GLIDE<input type="range" id="gld" min="0" max="100" value="20"></label>
+  <label>DECAY<input type="range" id="dec" min="10" max="100" value="40"></label>
+</div>
+<div class="kb-scroll"><div class="kb" id="kb"></div></div>
+<p class="hint">MONOPHONIC · QWERTY: A W S E D F T G Y H U J K · Z / X OCTAVE</p>
 </main>
-</body>
-</html>
+<script>
+let AC=null;function ctx(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended')AC.resume();return AC;}
+const mf=m=>440*Math.pow(2,(m-69)/12);
+let wave='sawtooth',sub=false,lastF=null;
+const P={cut:0.55,res:0.55,gld:0.2,dec:0.4};
+document.querySelectorAll('[data-w]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-w]').forEach(x=>x.classList.remove('sel'));
+  b.classList.add('sel');wave=b.dataset.w;}));
+document.getElementById('subBtn').addEventListener('click',e=>{
+  sub=!sub;e.target.textContent=sub?'ON':'OFF';e.target.classList.toggle('sel',sub);});
+for(const id of['cut','res','gld','dec'])
+  document.getElementById(id).addEventListener('input',e=>P[id]=+e.target.value/100);
+const LOW=36,HIGH=55;
+const kb=document.getElementById('kb'),keyEls=new Map();
+(function(){let w=0;for(let m=LOW;m<=HIGH;m++){
+  const black=[1,3,6,8,10].includes(m%12);
+  const el=document.createElement('div');el.className='key'+(black?' black':'');el.dataset.m=m;
+  if(black){el.style.left=(w*46-14)+'px';kb.appendChild(el);}
+  else{kb.appendChild(el);w++;}
+  keyEls.set(m,el);}
+  kb.style.width=(w*46)+'px';})();
+let cur=null; /* {osc, subOsc, fl, g, m} */
+function noteOn(m){
+  const c=ctx(),t=c.currentTime,f=mf(m);
+  const cutHz=120*Math.pow(50,P.cut); /* 120..6000 */
+  if(cur){ /* mono: glide to new pitch */
+    const gt=P.gld*0.25;
+    cur.osc.frequency.cancelScheduledValues(t);
+    if(gt>0.004)cur.osc.frequency.setTargetAtTime(f,t,gt/3);
+    else cur.osc.frequency.setValueAtTime(f,t);
+    if(cur.subOsc){cur.subOsc.frequency.cancelScheduledValues(t);
+      if(gt>0.004)cur.subOsc.frequency.setTargetAtTime(f/2,t,gt/3);
+      else cur.subOsc.frequency.setValueAtTime(f/2,t);}
+    cur.fl.frequency.cancelScheduledValues(t);
+    cur.fl.frequency.setValueAtTime(Math.min(9000,cutHz*4),t);
+    cur.fl.frequency.exponentialRampToValueAtTime(Math.max(80,cutHz*0.9),t+0.1+P.dec*0.5);
+    cur.g.gain.cancelScheduledValues(t);
+    cur.g.gain.setValueAtTime(Math.max(cur.g.gain.value,0.0001),t);
+    cur.g.gain.setTargetAtTime(0.4,t,0.01);
+    keyEls.get(cur.m)?.classList.remove('playing');
+    cur.m=m;keyEls.get(m)?.classList.add('playing');
+    return;
+  }
+  const o=c.createOscillator();o.type=wave;o.frequency.value=f;
+  const fl=c.createBiquadFilter();fl.type='lowpass';fl.Q.value=P.res*22;
+  fl.frequency.setValueAtTime(Math.min(9000,cutHz*4),t);
+  fl.frequency.exponentialRampToValueAtTime(Math.max(80,cutHz*0.9),t+0.1+P.dec*0.5);
+  const g=c.createGain();
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(0.4,t+0.008);
+  o.connect(fl);fl.connect(g);g.connect(c.destination);
+  o.start(t);
+  let so=null;
+  if(sub){so=c.createOscillator();so.type='sine';so.frequency.value=f/2;
+    const sg=c.createGain();sg.gain.value=0.45;so.connect(sg);sg.connect(g);so.start(t);}
+  cur={osc:o,subOsc:so,fl,g,m};
+  keyEls.get(m)?.classList.add('playing');
+}
+function noteOff(m){
+  if(!cur||cur.m!==m)return;
+  const t=AC.currentTime;
+  cur.g.gain.cancelScheduledValues(t);
+  cur.g.gain.setValueAtTime(Math.max(cur.g.gain.value,0.0001),t);
+  cur.g.gain.setTargetAtTime(0.0001,t,0.06);
+  const o=cur.osc,so=cur.subOsc;
+  setTimeout(()=>{try{o.stop()}catch(e){};try{so&&so.stop()}catch(e){}},500);
+  keyEls.get(m)?.classList.remove('playing');
+  cur=null;
+}
+let ptr=null;
+kb.addEventListener('pointerdown',e=>{const m=e.target.closest('.key')?.dataset.m;
+  if(!m)return;e.preventDefault();ptr=+m;noteOn(ptr);});
+window.addEventListener('pointerup',()=>{if(ptr!==null){noteOff(ptr);ptr=null;}});
+const MAP={a:36,w:37,s:38,e:39,d:40,f:41,t:42,g:43,y:44,h:45,u:46,j:47,k:48,o:49,l:50,p:51,';':52};
+let oct=0;const held=[];
+window.addEventListener('keydown',e=>{
+  if(e.repeat||e.metaKey||e.ctrlKey)return;
+  const k=e.key.toLowerCase();
+  if(k==='z'){oct=Math.max(-1,oct-1);return;}
+  if(k==='x'){oct=Math.min(2,oct+1);return;}
+  if(MAP[k]===undefined)return;
+  const m=MAP[k]+oct*12;held.push({k,m});noteOn(m);
+});
+window.addEventListener('keyup',e=>{
+  const k=e.key.toLowerCase();
+  const i=held.findIndex(h=>h.k===k);
+  if(i<0)return;
+  const wasTop=(i===held.length-1);
+  const rel=held.splice(i,1)[0];
+  if(wasTop){
+    if(held.length)noteOn(held[held.length-1].m); /* fall back to previous held key */
+    else noteOff(rel.m);
+  }
+});
+</script></body></html>

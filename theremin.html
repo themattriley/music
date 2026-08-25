@@ -1,35 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Theremin -- Gonzo's Music Room</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Theremin — Gonzo's Music Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:#0b0807;color:#d4c4a0;font-family:'Special Elite',serif;display:flex;flex-direction:column}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.04;pointer-events:none;z-index:900}
-.nav{padding:0.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10}
-.back-btn{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;padding:0.35rem 0.75rem;border:1px solid #2a1808;transition:color 0.2s,border-color 0.2s}
+.nav{padding:.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10;display:flex;justify-content:space-between;align-items:center}
+.back-btn{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.14em;color:#7a6040;text-decoration:none;padding:.35rem .75rem;border:1px solid #2a1808;transition:color .2s,border-color .2s}
 .back-btn:hover{color:#d97706;border-color:#d97706}
-.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;z-index:1}
-.icon{font-size:4.5rem;margin-bottom:1.2rem;line-height:1}
-.name{font-size:2.8rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,0.3);margin-bottom:0.5rem}
-.flavor{font-family:'Caveat',cursive;font-size:1.3rem;color:#7a6040;margin-bottom:1.8rem}
-.wip-tag{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:#4a3828;border:1px solid #2a1808;padding:0.4rem 1rem;margin-bottom:2rem;display:inline-block}
-.back-link{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;border:1px solid #2a1808;padding:0.5rem 1.1rem;transition:color 0.2s,border-color 0.2s}
-.back-link:hover{color:#d97706;border-color:#d97706}
-</style>
-</head>
-<body>
-<nav class="nav"><a href="index.html" class="back-btn">← MUSIC ROOM</a></nav>
+.snapb{font-family:'Share Tech Mono',monospace;font-size:.6rem;background:none;border:1px solid #2a1808;color:#7a6040;padding:.35rem .75rem;cursor:pointer;letter-spacing:.12em}
+.snapb.sel{color:#fde68a;border-color:#d97706}
+.main{flex:1;display:flex;flex-direction:column;padding:1.2rem;position:relative;z-index:1}
+.iname{font-size:2rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,.3);text-align:center}
+.flavor{font-family:'Caveat',cursive;font-size:1.15rem;color:#7a6040;margin:.1rem 0 1rem;text-align:center}
+.field{flex:1;position:relative;min-height:340px;border:1px solid #2a1808;border-radius:10px;
+  background:radial-gradient(80% 100% at 50% 100%, #17100a 0%, #0e0a07 70%);
+  cursor:crosshair;touch-action:none;overflow:hidden}
+.cross{position:absolute;width:26px;height:26px;border:2px solid #d97706;border-radius:50%;
+  box-shadow:0 0 26px rgba(217,119,6,.7);transform:translate(-50%,-50%);
+  pointer-events:none;display:none}
+.read{position:absolute;top:12px;left:14px;font-family:'Share Tech Mono',monospace;
+  font-size:.66rem;letter-spacing:.12em;color:#7a6040;pointer-events:none}
+.axis{position:absolute;font-family:'Share Tech Mono',monospace;font-size:.55rem;color:#3a2c1a;pointer-events:none}
+</style></head><body>
+<nav class="nav"><a href="index.html" class="back-btn">← MUSIC ROOM</a>
+<button class="snapb" id="snap">SNAP: FREE</button></nav>
 <main class="main">
-  <div class="icon">✋</div>
-  <div class="name">Theremin</div>
-  <div class="flavor">Mouse X = pitch · Y = volume</div>
-  <div class="wip-tag">[ UNDER CONSTRUCTION ]</div>
-  <a href="index.html" class="back-link">← BACK TO MUSIC ROOM</a>
+<div class="iname">Theremin</div>
+<div class="flavor">Wave your pointer through the field — never touch the instrument</div>
+<div class="field" id="field">
+  <div class="read" id="read">—</div>
+  <div class="cross" id="cross"></div>
+  <span class="axis" style="bottom:8px;left:12px">← LOW</span>
+  <span class="axis" style="bottom:8px;right:12px">HIGH →</span>
+  <span class="axis" style="top:8px;right:12px">QUIET ↑</span>
+  <span class="axis" style="bottom:26px;right:12px">LOUD ↓</span>
+</div>
 </main>
-</body>
-</html>
+<script>
+let AC=null,osc=null,osc2=null,gain=null,vib=null;
+function boot(){
+  if(AC)return;AC=new (window.AudioContext||window.webkitAudioContext)();
+  osc=AC.createOscillator();osc.type='sine';
+  osc2=AC.createOscillator();osc2.type='triangle';
+  const g2=AC.createGain();g2.gain.value=0.25;
+  vib=AC.createOscillator();vib.frequency.value=5.2;
+  const vg=AC.createGain();vg.gain.value=3;
+  vib.connect(vg);vg.connect(osc.frequency);vg.connect(osc2.frequency);
+  gain=AC.createGain();gain.gain.value=0;
+  osc.connect(gain);osc2.connect(g2);g2.connect(gain);
+  gain.connect(AC.destination);
+  osc.start();osc2.start();vib.start();
+}
+const NN=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+let snap=false;
+document.getElementById('snap').addEventListener('click',e=>{
+  snap=!snap;e.target.textContent=snap?'SNAP: PENTATONIC':'SNAP: FREE';
+  e.target.classList.toggle('sel',snap);});
+const PENTA=[0,2,4,7,9];
+const field=document.getElementById('field'),cross=document.getElementById('cross'),
+      read=document.getElementById('read');
+const FMIN=110,FMAX=1760;
+function setFrom(e){
+  const r=field.getBoundingClientRect();
+  const x=Math.min(1,Math.max(0,(e.clientX-r.left)/r.width));
+  const y=Math.min(1,Math.max(0,(e.clientY-r.top)/r.height));
+  let f=FMIN*Math.pow(FMAX/FMIN,x);
+  let label;
+  if(snap){
+    const m=Math.round(69+12*Math.log2(f/440));
+    let best=m,dist=99;
+    for(let d=-6;d<=6;d++){const mm=m+d;
+      if(PENTA.includes(((mm%12)+12)%12)&&Math.abs(d)<dist){dist=Math.abs(d);best=mm;}}
+    f=440*Math.pow(2,(best-69)/12);
+    label=NN[((best%12)+12)%12]+(Math.floor(best/12)-1);
+  }else{
+    label=f.toFixed(1)+' Hz';
+  }
+  const vol=Math.pow(1-y,1.4)*0.5;
+  const t=AC.currentTime;
+  osc.frequency.setTargetAtTime(f,t,snap?0.02:0.008);
+  osc2.frequency.setTargetAtTime(f,t,snap?0.02:0.008);
+  gain.gain.setTargetAtTime(vol,t,0.03);
+  cross.style.display='block';
+  cross.style.left=(x*100)+'%';cross.style.top=(y*100)+'%';
+  read.textContent=label+'  ·  vol '+Math.round((1-y)*100)+'%';
+}
+let down=false;
+field.addEventListener('pointerdown',e=>{boot();
+  if(AC.state==='suspended')AC.resume();
+  down=true;field.setPointerCapture(e.pointerId);setFrom(e);});
+field.addEventListener('pointermove',e=>{if(down)setFrom(e);});
+function stop(){if(!AC)return;down=false;
+  gain.gain.setTargetAtTime(0,AC.currentTime,0.09);
+  cross.style.display='none';read.textContent='—';}
+field.addEventListener('pointerup',stop);
+field.addEventListener('pointercancel',stop);
+</script></body></html>

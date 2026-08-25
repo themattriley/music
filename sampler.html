@@ -1,35 +1,171 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sampler -- Gonzo's Music Room</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sampler — Gonzo's Music Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:#0b0807;color:#d4c4a0;font-family:'Special Elite',serif;display:flex;flex-direction:column}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.04;pointer-events:none;z-index:900}
-.nav{padding:0.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10}
-.back-btn{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;padding:0.35rem 0.75rem;border:1px solid #2a1808;transition:color 0.2s,border-color 0.2s}
+.nav{padding:.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10;display:flex;justify-content:space-between;align-items:center}
+.back-btn{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.14em;color:#7a6040;text-decoration:none;padding:.35rem .75rem;border:1px solid #2a1808;transition:color .2s,border-color .2s}
 .back-btn:hover{color:#d97706;border-color:#d97706}
-.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;z-index:1}
-.icon{font-size:4.5rem;margin-bottom:1.2rem;line-height:1}
-.name{font-size:2.8rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,0.3);margin-bottom:0.5rem}
-.flavor{font-family:'Caveat',cursive;font-size:1.3rem;color:#7a6040;margin-bottom:1.8rem}
-.wip-tag{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:#4a3828;border:1px solid #2a1808;padding:0.4rem 1rem;margin-bottom:2rem;display:inline-block}
-.back-link{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;border:1px solid #2a1808;padding:0.5rem 1.1rem;transition:color 0.2s,border-color 0.2s}
-.back-link:hover{color:#d97706;border-color:#d97706}
-</style>
-</head>
-<body>
-<nav class="nav"><a href="index.html" class="back-btn">← MUSIC ROOM</a></nav>
+.recb{font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.12em;
+  background:none;border:1px solid #2a1808;color:#7a6040;padding:.35rem .75rem;cursor:pointer}
+.recb.armed{color:#ff6b6b;border-color:#a33;box-shadow:0 0 12px rgba(255,60,60,.3)}
+.main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.6rem 1rem 3rem;position:relative;z-index:1}
+.iname{font-size:2.4rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,.3);text-align:center}
+.flavor{font-family:'Caveat',cursive;font-size:1.25rem;color:#7a6040;margin:.2rem 0 1.4rem;text-align:center}
+.grid16{display:grid;grid-template-columns:repeat(4,minmax(76px,110px));gap:10px}
+.spad{position:relative;aspect-ratio:1;border-radius:8px;cursor:pointer;
+  background:linear-gradient(180deg,#241a10,#150e07);border:1px solid #3a2812;
+  display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;
+  font-family:'Share Tech Mono',monospace;font-size:.5rem;letter-spacing:.08em;color:#7a6040;
+  transition:box-shadow .07s,transform .05s}
+.spad.lit{box-shadow:0 0 22px rgba(217,119,6,.55);border-color:#d97706;transform:scale(.96)}
+.spad.user{border-color:#3f6b54;color:#7fae95}
+.spad .load{position:absolute;top:5px;right:5px;font-size:.55rem;color:#4a3828;
+  border:1px solid #2a1808;background:#0b0807;border-radius:3px;padding:1px 5px;cursor:pointer}
+.spad .load:hover{color:#fde68a;border-color:#d97706}
+.hint{margin-top:1.2rem;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.12em;color:#4a3828;text-align:center;line-height:1.9;max-width:560px}
+</style></head><body>
+<nav class="nav"><a href="index.html" class="back-btn">← MUSIC ROOM</a>
+<button class="recb" id="rec">● REC → TAP A PAD</button></nav>
 <main class="main">
-  <div class="icon">🎚️</div>
-  <div class="name">Sampler</div>
-  <div class="flavor">Upload · record · built-in sounds · 16 pads</div>
-  <div class="wip-tag">[ UNDER CONSTRUCTION ]</div>
-  <a href="index.html" class="back-link">← BACK TO MUSIC ROOM</a>
+<div class="iname">Sampler</div>
+<div class="flavor">Sixteen pads — built-in hits, your files, or your voice</div>
+<div class="grid16" id="grid"></div>
+<p class="hint">KEYS: 1 2 3 4 / Q W E R / A S D F / Z X C V · ⏏ LOADS AN AUDIO FILE ONTO A PAD<br>● REC THEN TAP A PAD RECORDS ~1.5s FROM YOUR MIC (BROWSER WILL ASK PERMISSION)</p>
 </main>
-</body>
-</html>
+<script>
+let AC=null;function ctx(){if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();
+  if(AC.state==='suspended')AC.resume();return AC;}
+let _nb=null;function noise(c){if(!_nb){_nb=c.createBuffer(1,c.sampleRate,c.sampleRate);
+  const d=_nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;}
+  const s=c.createBufferSource();s.buffer=_nb;return s;}
+/* 16 built-in synth hits */
+function synthHit(c,kind,t){
+  const D=c.destination;
+  const env=(g,a,peak,dec)=>{g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(peak,t+a);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+dec);};
+  const osc=(type,f0,f1,dur,peak)=>{const o=c.createOscillator(),g=c.createGain();
+    o.type=type;o.frequency.setValueAtTime(f0,t);
+    if(f1)o.frequency.exponentialRampToValueAtTime(f1,t+dur*0.8);
+    env(g,0.005,peak,dur);o.connect(g);g.connect(D);o.start(t);o.stop(t+dur+0.05);};
+  const nz=(hz,type,q,dur,peak)=>{const n=noise(c),f=c.createBiquadFilter(),g=c.createGain();
+    f.type=type;f.frequency.value=hz;f.Q.value=q;env(g,0.003,peak,dur);
+    n.connect(f);f.connect(g);g.connect(D);n.start(t);n.stop(t+dur+0.05);};
+  switch(kind){
+    case 'kick': osc('sine',130,38,0.4,0.9);break;
+    case 'kick808': osc('sine',95,30,0.9,0.9);break;
+    case 'snare': nz(1800,'bandpass',0.6,0.18,0.7);osc('triangle',190,null,0.09,0.4);break;
+    case 'rim': nz(3500,'bandpass',5,0.05,0.6);break;
+    case 'hat': nz(9000,'highpass',1,0.05,0.4);break;
+    case 'ohat': nz(8500,'highpass',1,0.3,0.35);break;
+    case 'clap': for(let i=0;i<3;i++){setTimeout(()=>{},0);
+        const tt=t+i*0.013,n=noise(c),f=c.createBiquadFilter(),g=c.createGain();
+        f.type='bandpass';f.frequency.value=1400+i*280;f.Q.value=1.8;
+        g.gain.setValueAtTime(0.5,tt);g.gain.exponentialRampToValueAtTime(0.0001,tt+(i===2?0.15:0.03));
+        n.connect(f);f.connect(g);g.connect(D);n.start(tt);n.stop(tt+0.2);}break;
+    case 'tom': osc('sine',180,110,0.35,0.8);break;
+    case 'zap': osc('sawtooth',2400,60,0.18,0.5);break;
+    case 'rise': osc('sawtooth',80,1600,0.5,0.3);break;
+    case 'blip': osc('square',880,null,0.08,0.35);break;
+    case 'sub': osc('sine',42,null,0.6,0.9);break;
+    case 'stab': for(const dt of[-7,0,7]){const o=c.createOscillator(),g=c.createGain(),
+        f=c.createBiquadFilter();o.type='sawtooth';o.frequency.value=196;o.detune.value=dt;
+        f.type='lowpass';f.frequency.setValueAtTime(300,t);
+        f.frequency.exponentialRampToValueAtTime(2600,t+0.03);
+        f.frequency.exponentialRampToValueAtTime(500,t+0.2);
+        env(g,0.004,0.22,0.22);o.connect(f);f.connect(g);g.connect(D);
+        o.start(t);o.stop(t+0.3);}break;
+    case 'bell': for(const r of[1,2.76]){const o=c.createOscillator(),g=c.createGain();
+        o.type='sine';o.frequency.value=660*r;env(g,0.004,0.3/r,0.9);
+        o.connect(g);g.connect(D);o.start(t);o.stop(t+1);}break;
+    case 'laser': osc('square',1800,120,0.14,0.4);break;
+    case 'thud': nz(160,'lowpass',1,0.25,0.9);break;
+  }
+}
+const KINDS=['kick','snare','hat','ohat','kick808','clap','rim','tom',
+             'sub','stab','zap','rise','blip','bell','laser','thud'];
+const KEYS=['1','2','3','4','q','w','e','r','a','s','d','f','z','x','c','v'];
+const pads=KINDS.map((k,i)=>({kind:k,key:KEYS[i],buffer:null,label:k.toUpperCase()}));
+const grid=document.getElementById('grid');
+pads.forEach((p,i)=>{
+  const d=document.createElement('div');d.className='spad';d.dataset.i=i;
+  d.innerHTML=`<button class="load" data-l="${i}" title="load audio file">⏏</button>
+    <span id="pl${i}">${p.label} · ${p.key.toUpperCase()}</span>`;
+  grid.appendChild(d);
+});
+const fileIn=document.createElement('input');
+fileIn.type='file';fileIn.accept='audio/*';fileIn.style.display='none';
+document.body.appendChild(fileIn);
+let loadTarget=null;
+function play(i){
+  const c=ctx(),p=pads[i],t=c.currentTime;
+  if(p.buffer){const s=c.createBufferSource();s.buffer=p.buffer;
+    const g=c.createGain();g.gain.value=0.85;
+    s.connect(g);g.connect(c.destination);s.start(t);}
+  else synthHit(c,p.kind,t);
+  const el=document.querySelector(`.spad[data-i="${i}"]`);
+  el.classList.add('lit');setTimeout(()=>el.classList.remove('lit'),110);
+}
+/* mic recording */
+let armed=false,recStream=null;
+const recBtn=document.getElementById('rec');
+recBtn.addEventListener('click',()=>{
+  armed=!armed;recBtn.classList.toggle('armed',armed);
+  recBtn.textContent=armed?'● ARMED — TAP A PAD':'● REC → TAP A PAD';
+});
+async function recordTo(i){
+  try{
+    recStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    const rec=new MediaRecorder(recStream),chunks=[];
+    rec.ondataavailable=e=>chunks.push(e.data);
+    rec.onstop=async()=>{
+      recStream.getTracks().forEach(tr=>tr.stop());
+      try{
+        const buf=await new Blob(chunks).arrayBuffer();
+        pads[i].buffer=await ctx().decodeAudioData(buf);
+        pads[i].label='MIC';
+        document.getElementById('pl'+i).textContent='MIC · '+pads[i].key.toUpperCase();
+        document.querySelector(`.spad[data-i="${i}"]`).classList.add('user');
+      }catch(err){alert('Could not decode the recording in this browser.');}
+    };
+    rec.start();
+    const el=document.querySelector(`.spad[data-i="${i}"]`);
+    el.classList.add('lit');
+    setTimeout(()=>{el.classList.remove('lit');rec.stop();},1500);
+  }catch(err){
+    alert('Mic unavailable — check browser permission (and note: mic needs an https page).');
+  }
+  armed=false;recBtn.classList.remove('armed');
+  recBtn.textContent='● REC → TAP A PAD';
+}
+grid.addEventListener('pointerdown',e=>{
+  const l=e.target.closest('.load');
+  if(l){e.stopPropagation();loadTarget=+l.dataset.l;fileIn.click();return;}
+  const pad=e.target.closest('.spad');
+  if(!pad)return;e.preventDefault();
+  const i=+pad.dataset.i;
+  if(armed){ctx();recordTo(i);}
+  else play(i);
+});
+fileIn.addEventListener('change',async()=>{
+  const f=fileIn.files[0];if(f===undefined||loadTarget===null)return;
+  try{
+    const buf=await f.arrayBuffer();
+    pads[loadTarget].buffer=await ctx().decodeAudioData(buf);
+    pads[loadTarget].label=f.name.slice(0,8).toUpperCase();
+    document.getElementById('pl'+loadTarget).textContent=
+      pads[loadTarget].label+' · '+pads[loadTarget].key.toUpperCase();
+    document.querySelector(`.spad[data-i="${loadTarget}"]`).classList.add('user');
+  }catch(err){alert('That file could not be decoded as audio.');}
+  fileIn.value='';loadTarget=null;
+});
+window.addEventListener('keydown',e=>{
+  if(e.repeat||e.metaKey||e.ctrlKey)return;
+  const i=pads.findIndex(p=>p.key===e.key.toLowerCase());
+  if(i>=0)play(i);
+});
+</script></body></html>

@@ -1,35 +1,203 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Weather Machine -- Gonzo's Music Room</title>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weather Machine — Gonzo's Music Room</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Caveat:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{min-height:100vh;background:#0b0807;color:#d4c4a0;font-family:'Special Elite',serif;display:flex;flex-direction:column}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:0.04;pointer-events:none;z-index:900}
-.nav{padding:0.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10}
-.back-btn{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;padding:0.35rem 0.75rem;border:1px solid #2a1808;transition:color 0.2s,border-color 0.2s}
+.nav{padding:.9rem 2rem;border-bottom:1px solid #1a1005;position:relative;z-index:10}
+.back-btn{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.14em;color:#7a6040;text-decoration:none;padding:.35rem .75rem;border:1px solid #2a1808;transition:color .2s,border-color .2s}
 .back-btn:hover{color:#d97706;border-color:#d97706}
-.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 2rem;position:relative;z-index:1}
-.icon{font-size:4.5rem;margin-bottom:1.2rem;line-height:1}
-.name{font-size:2.8rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,0.3);margin-bottom:0.5rem}
-.flavor{font-family:'Caveat',cursive;font-size:1.3rem;color:#7a6040;margin-bottom:1.8rem}
-.wip-tag{font-family:'Share Tech Mono',monospace;font-size:0.58rem;letter-spacing:0.2em;color:#4a3828;border:1px solid #2a1808;padding:0.4rem 1rem;margin-bottom:2rem;display:inline-block}
-.back-link{font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.14em;color:#7a6040;text-decoration:none;border:1px solid #2a1808;padding:0.5rem 1.1rem;transition:color 0.2s,border-color 0.2s}
-.back-link:hover{color:#d97706;border-color:#d97706}
-</style>
-</head>
-<body>
+.main{flex:1;display:flex;flex-direction:column;align-items:center;padding:1.6rem 1rem 3rem;position:relative;z-index:1}
+.iname{font-size:2.4rem;color:#fde68a;text-shadow:0 0 40px rgba(217,119,6,.3);text-align:center}
+.flavor{font-family:'Caveat',cursive;font-size:1.25rem;color:#7a6040;margin:.2rem 0 1.4rem;text-align:center}
+.deck{background:#141009;border:1px solid #2a1808;border-radius:12px;padding:22px;
+  width:min(520px,94vw);display:flex;flex-direction:column;gap:16px}
+.crow{display:flex;gap:8px}
+.crow input{flex:1;font-family:'Share Tech Mono',monospace;font-size:.75rem;
+  background:#0b0807;color:#d4c4a0;border:1px solid #2a1808;padding:.7rem .9rem;min-width:0}
+.crow input:focus{outline:none;border-color:#d97706}
+.go{font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.14em;
+  background:none;border:1px solid #2a1808;color:#7a6040;padding:.7rem 1.2rem;cursor:pointer}
+.go:hover,.go.on{color:#fde68a;border-color:#d97706}
+.sky{font-family:'Share Tech Mono',monospace;font-size:.66rem;letter-spacing:.1em;
+  color:#7a6040;line-height:2;min-height:5.5em;white-space:pre-line}
+.sky b{color:#fde68a;font-weight:400}
+.err{color:#c97a6a}
+.demo{display:none;font-family:'Share Tech Mono',monospace;font-size:.6rem;
+  background:none;border:1px solid #2a1808;color:#7a6040;padding:.5rem 1rem;cursor:pointer;align-self:flex-start}
+.demo.show{display:inline-block}
+.demo:hover{color:#fde68a;border-color:#d97706}
+.hint{margin-top:1.1rem;font-family:'Share Tech Mono',monospace;font-size:.6rem;letter-spacing:.12em;color:#4a3828;text-align:center;max-width:520px;line-height:1.9}
+</style></head><body>
 <nav class="nav"><a href="index.html" class="back-btn">← MUSIC ROOM</a></nav>
 <main class="main">
-  <div class="icon">⛈️</div>
-  <div class="name">Weather Machine</div>
-  <div class="flavor">Live weather feeds generative ambient music</div>
-  <div class="wip-tag">[ UNDER CONSTRUCTION ]</div>
-  <a href="index.html" class="back-link">← BACK TO MUSIC ROOM</a>
+<div class="iname">Weather Machine</div>
+<div class="flavor">Somewhere it is raining. Hear it from here.</div>
+<div class="deck">
+  <div class="crow">
+    <input id="city" placeholder="enter a city — toronto, tokyo, reykjavík…" autocomplete="off">
+    <button class="go" id="go">LISTEN</button>
+  </div>
+  <div class="sky" id="sky">the sky is quiet.</div>
+  <button class="demo" id="demo">CAN'T REACH THE SKY? PLAY DEMO WEATHER</button>
+</div>
+<p class="hint">LIVE CONDITIONS BECOME SOUND: TEMPERATURE SETS THE DRONE'S PITCH, CLOUD COVER DARKENS THE TONE, WIND GUSTS THE AIR, RAIN PLAYS THE DROPLETS, STORMS BRING THUNDER. DATA: OPEN-METEO (FREE, NO KEY).</p>
 </main>
-</body>
-</html>
+<script>
+let AC=null,master=null;
+function ctx(){if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();
+  master=AC.createGain();master.gain.value=0;master.connect(AC.destination);}
+  if(AC.state==='suspended')AC.resume();return AC;}
+
+/* ---- data layer ---- */
+const WMO={0:'clear sky',1:'mainly clear',2:'partly cloudy',3:'overcast',
+  45:'fog',48:'rime fog',51:'light drizzle',53:'drizzle',55:'heavy drizzle',
+  61:'light rain',63:'rain',65:'heavy rain',66:'freezing rain',67:'freezing rain',
+  71:'light snow',73:'snow',75:'heavy snow',77:'snow grains',
+  80:'rain showers',81:'showers',82:'violent showers',85:'snow showers',86:'snow showers',
+  95:'thunderstorm',96:'thunderstorm + hail',99:'thunderstorm + hail'};
+function describe(w){return WMO[w.code]||('code '+w.code);}
+/* normalize a forecast response into the fields the sound engine uses */
+function parseWeather(json){
+  const c=json&&json.current;
+  if(!c)throw new Error('missing current block');
+  return {
+    temp:Number(c.temperature_2m),
+    wind:Number(c.wind_speed_10m),
+    clouds:Number(c.cloud_cover),
+    precip:Number(c.precipitation),
+    code:Number(c.weather_code)
+  };
+}
+async function geocode(name){
+  const u='https://geocoding-api.open-meteo.com/v1/search?count=1&language=en&name='+encodeURIComponent(name);
+  const r=await fetch(u);
+  if(!r.ok)throw new Error('geocoding failed ('+r.status+')');
+  const j=await r.json();
+  if(!j.results||!j.results.length)throw new Error('city not found');
+  return j.results[0];
+}
+async function forecast(lat,lon){
+  const u='https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+
+    '&current=temperature_2m,wind_speed_10m,cloud_cover,precipitation,weather_code&timezone=auto';
+  const r=await fetch(u);
+  if(!r.ok)throw new Error('forecast failed ('+r.status+')');
+  return parseWeather(await r.json());
+}
+
+/* ---- sound engine ---- */
+let engine=null;
+function stopEngine(){
+  if(!engine)return;
+  const c=AC,t=c.currentTime;
+  master.gain.setTargetAtTime(0,t,0.8);
+  const e=engine;engine=null;
+  clearInterval(e.dropTimer);clearInterval(e.thunderTimer);
+  setTimeout(()=>{for(const n of e.stops){try{n.stop()}catch(x){}}},3000);
+}
+function startEngine(w,place){
+  const c=ctx();stopEngine();
+  const t=c.currentTime,stops=[];
+  /* drone root from temperature: -15°C..35°C → MIDI 41..60 */
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const midi=41+clamp((w.temp+15)/50,0,1)*19;
+  const f=440*Math.pow(2,(midi-69)/12);
+  /* darkness from cloud cover */
+  const cut=clamp(7000-w.clouds*62,700,7000);
+  const fl=c.createBiquadFilter();fl.type='lowpass';fl.frequency.value=cut;
+  fl.connect(master);
+  for(const[mult,det,vol,type]of[[0.5,0,0.5,'sine'],[1,-5,0.22,'sawtooth'],[1,4,0.22,'sawtooth'],[1.5,2,0.12,'triangle']]){
+    const o=c.createOscillator();o.type=type;o.frequency.value=f*mult;o.detune.value=det;
+    const g=c.createGain();g.gain.value=vol;
+    o.connect(g);g.connect(fl);o.start(t);stops.push(o);
+  }
+  /* wind: filtered noise, gust LFO scaled by wind speed (km/h) */
+  const nb=c.createBuffer(1,c.sampleRate*2,c.sampleRate),nd=nb.getChannelData(0);
+  for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+  const n=c.createBufferSource();n.buffer=nb;n.loop=true;
+  const wbp=c.createBiquadFilter();wbp.type='bandpass';wbp.frequency.value=900;wbp.Q.value=0.5;
+  const wg=c.createGain();
+  const windAmt=clamp(w.wind/60,0,1);
+  wg.gain.value=0.02+windAmt*0.22;
+  const gust=c.createOscillator();gust.type='sine';
+  gust.frequency.value=0.08+windAmt*0.5;
+  const gustG=c.createGain();gustG.gain.value=windAmt*0.12;
+  gust.connect(gustG);gustG.connect(wg.gain);
+  n.connect(wbp);wbp.connect(wg);wg.connect(master);
+  n.start(t);gust.start(t);stops.push(n,gust);
+  /* rain droplets: rate from precipitation (mm) */
+  let dropTimer=null;
+  if(w.precip>0){
+    const period=clamp(420/(w.precip+0.3),45,900);
+    dropTimer=setInterval(()=>{
+      if(!engine)return;
+      const tt=c.currentTime,o=c.createOscillator(),g=c.createGain();
+      o.type='sine';
+      const df=1400+Math.random()*2600;
+      o.frequency.setValueAtTime(df,tt);
+      o.frequency.exponentialRampToValueAtTime(df*0.6,tt+0.05);
+      g.gain.setValueAtTime(0.05+Math.random()*0.06,tt);
+      g.gain.exponentialRampToValueAtTime(0.0001,tt+0.05+Math.random()*0.05);
+      o.connect(g);g.connect(master);o.start(tt);o.stop(tt+0.15);
+    },period);
+  }
+  /* thunder for stormy codes */
+  let thunderTimer=null;
+  if(w.code>=95){
+    const boom=()=>{
+      if(!engine)return;
+      const tt=c.currentTime,src=c.createBufferSource();src.buffer=nb;
+      const lp=c.createBiquadFilter();lp.type='lowpass';lp.frequency.value=140;
+      const g=c.createGain();
+      g.gain.setValueAtTime(0.0001,tt);
+      g.gain.exponentialRampToValueAtTime(0.7,tt+0.25);
+      g.gain.exponentialRampToValueAtTime(0.0001,tt+2.8);
+      src.connect(lp);lp.connect(g);g.connect(master);
+      src.start(tt);src.stop(tt+3);
+    };
+    setTimeout(boom,1200);
+    thunderTimer=setInterval(()=>{if(Math.random()<0.5)boom();},9000);
+  }
+  master.gain.setTargetAtTime(0.6,t,1.4);
+  engine={stops,dropTimer,thunderTimer};
+  document.getElementById('go').classList.add('on');
+  document.getElementById('go').textContent='STOP';
+  document.getElementById('sky').innerHTML=
+    '<b>'+place+'</b>\n'+
+    describe(w)+' · '+w.temp.toFixed(1)+'°C\n'+
+    'wind '+w.wind.toFixed(0)+' km/h · clouds '+w.clouds.toFixed(0)+'%'+
+    (w.precip>0?' · rain '+w.precip.toFixed(1)+' mm':'');
+}
+const DEMO_W={temp:11,wind:26,clouds:85,precip:2.2,code:63};
+async function listen(){
+  if(engine){stopEngine();
+    document.getElementById('go').classList.remove('on');
+    document.getElementById('go').textContent='LISTEN';
+    document.getElementById('sky').textContent='the sky is quiet.';
+    return;}
+  const name=document.getElementById('city').value.trim();
+  if(!name){document.getElementById('sky').textContent='name a city first.';return;}
+  ctx(); /* boot audio inside the user gesture */
+  document.getElementById('sky').textContent='reading the sky over '+name+'…';
+  try{
+    const g=await geocode(name);
+    const w=await forecast(g.latitude,g.longitude);
+    startEngine(w,(g.name||name)+(g.country?', '+g.country:''));
+    document.getElementById('demo').classList.remove('show');
+  }catch(err){
+    document.getElementById('sky').innerHTML=
+      '<span class="err">couldn\'t reach the sky: '+err.message+
+      '</span>\n(needs internet — and an http(s) page, not a file:// one)';
+    document.getElementById('demo').classList.add('show');
+  }
+}
+document.getElementById('go').addEventListener('click',listen);
+document.getElementById('city').addEventListener('keydown',e=>{if(e.key==='Enter')listen();});
+document.getElementById('demo').addEventListener('click',()=>{
+  ctx();startEngine(DEMO_W,'demo weather · somewhere rainy');
+});
+/* expose for tests */
+if(typeof module!=='undefined')module.exports={parseWeather,describe};
+</script></body></html>
